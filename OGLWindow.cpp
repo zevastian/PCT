@@ -247,7 +247,7 @@ void OGLWindow::restore()
         //RESTABLECER HINTS
         //ELIMINAR SI FUESE NECESARIO MAX_VERT Y MAX _HORTZ
         //HACE FALTA ACTIVAR LA COMPOSICION?
-        //CONTEMPLAR CASO DE VENANA NO MAPEADA
+        //CONTEMPLAR CASO DE VENTANA NO MAPEADA
         XEvent event;
         event.xany.type = ClientMessage;
         event.xclient.message_type = mNetWMState;
