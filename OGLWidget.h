@@ -21,6 +21,56 @@
 
 #define OGL_WIDGET_CLOSE 0X4000
 
+enum OGLWidgetXFlag {
+    OGL_XFLAG_NONE,
+    OGL_RELATIVE_LEFT,
+    OGL_RELATIVE_RIGHT,
+    OGL_ALIGN_LEFT,
+    OGL_ALIGN_RIGHT,
+    OGL_CENTER_X
+};
+
+enum OGLWidgetYFlag {
+    OGL_YFLAG_NONE,
+    OGL_RELATIVE_TOP,
+    OGL_RELATIVE_BOTTOM,
+    OGL_ALIGN_TOP,
+    OGL_ALIGN_BOTTOM,
+    OGL_CENTER_Y
+};
+
+enum OGLWidgetDimensionFlag {
+    OGL_DIMFLAG_NONE,
+    OGL_PX,
+    OGL_PERCENT
+};
+
+struct OGLWidgetDescription {
+    struct {
+        float value;
+        OGLWidgetXFlag flag;
+    } x;
+    struct {
+        float value;
+        OGLWidgetYFlag flag;
+    } y;
+    struct {
+        float value;
+        OGLWidgetDimensionFlag flag;
+    } width;
+    struct {
+        float value;
+        OGLWidgetDimensionFlag flag;
+    } height;
+    OGLWidgetDescription()
+    {
+        x.flag = OGL_XFLAG_NONE;
+        y.flag = OGL_YFLAG_NONE;
+        width.flag = OGL_DIMFLAG_NONE;
+        height.flag = OGL_DIMFLAG_NONE;
+    }
+};
+
 struct OGLWidgetEvent {
     int type;
     union {
@@ -59,10 +109,17 @@ struct OGLWidgetEvent {
 class OGLWidget
 {
 private:
+    float mXParent;
+    float mYParent;
+    float mXLeft;
+    float mXRight;
+    float mYTop;
+    float mYBottom;
+    OGLWidgetDescription mDescription;
 
 public:
     /**/
-    OGLWidget();
+    OGLWidget(OGLWidgetDescription description);
     /**/
     ~OGLWidget();
 
