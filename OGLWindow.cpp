@@ -38,6 +38,9 @@ OGLWindow::OGLWindow(OGLWindowDescription description)
         None
     };
 
+    //EXPRESAR MEJOR LA CAUSA DE FALLO
+    //INFORMAR CUANDO fbcount ES CERO O
+    //CUANDO fbconfig ES NULL
     int fbcount = 0;
     GLXFBConfig* fbconfig = glXChooseFBConfig(mDisplay, DefaultScreen(mDisplay), attr, &fbcount);
     if (!fbconfig || !fbcount) {
@@ -303,109 +306,102 @@ int OGLWindow::getState()
 void OGLWindow::getEvent(OGLWindowEvent& event)
 {
     XEvent xEvent;
-    while (true) {
-        XNextEvent(mDisplay, &xEvent);
-        switch (xEvent.type) {
+    XNextEvent(mDisplay, &xEvent);
+    event.type = OGL_WINDOW_NONE;
 
-        case MotionNotify:
-            event.type = OGL_WINDOW_MOUSE_MOVE;
-            event.data.mouse.x = xEvent.xmotion.x;
-            event.data.mouse.y = xEvent.xmotion.y;
-            break;
-
-        case ButtonPress:
-        case ButtonRelease:
-            if (xEvent.xbutton.button == 1) {
-                event.type = (xEvent.type == ButtonPress) ? OGL_WINDOW_MOUSE_CLICK_DOWN : OGL_WINDOW_MOUSE_CLICK_UP;
-                event.data.mouse.x = xEvent.xbutton.x;
-                event.data.mouse.y = xEvent.xbutton.y;
-                break;
-            } else if (xEvent.xbutton.button == 4 || xEvent.xbutton.button == 5) {
-                event.type = OGL_WINDOW_MOUSE_WHEEL;
-                event.data.mouse.x = xEvent.xbutton.x;
-                event.data.mouse.y = xEvent.xbutton.y;
-                event.data.mouse.delta = xEvent.xbutton.button == 4 ? 1 : -1;
-                break;
-            }
-            continue;
-
-        case Expose:
-            event.type = OGL_WINDOW_EXPOSE;
-            break;
-
-        case ConfigureNotify:
-            event.type = OGL_WINDOW_SIZE;
-            event.data.size.width = xEvent.xconfigure.width;
-            event.data.size.height = xEvent.xconfigure.height;
-            break;
-
-        case FocusIn:
-            event.type = OGL_WINDOW_FOCUS_SET;
-            break;
-
-        case FocusOut:
-            event.type = OGL_WINDOW_FOCUS_RELEASE;
-            break;
-
-        case EnterNotify:
-            event.type = OGL_WINDOW_MOUSE_ENTER;
-            break;
-
-        case LeaveNotify:
-            event.type = OGL_WINDOW_MOUSE_LEAVE;
-            break;
-
-        case KeyPress:
-            //TODO
-            //FALTA CHAR
-            event.type = OGL_WINDOW_KEY_UP;
-            event.data.key.code = xEvent.xkey.keycode;
-            break;
-
-        case KeyRelease:
-            //TODO
-            //FALTA CHAR
-            event.type = OGL_WINDOW_KEY_DOWN;
-            event.data.key.code = xEvent.xkey.keycode;
-            break;
-
-        case ClientMessage:
-            if (xEvent.xclient.message_type == mWmProtocols) {
-                if ((Atom)xEvent.xclient.data.l[0] == mNetWmSyncRequest) {
-                    mSyncCounterLow = xEvent.xclient.data.l[2];
-                    mSyncCounterHigh = xEvent.xclient.data.l[3];
-                    mHasReceivedSyncRequest = true;
-                    break;
-                } else if ((Atom)xEvent.xclient.data.l[0] == mWmDeleteWindow) {
-                    event.type = OGL_WINDOW_CLOSE;
-                    break;
-                }
-            }
-            continue;
-        /******************************************************************************/
-        //TODO
-        //SE PODRIA MEJORAR? TRATANDO DE NO COLOCARLO A LO ULTIMO?
-        //PUEDE SER QUE ASI COMO ESTA PROGRAMADO SYNC REQUEST NO SEA DEL TODO CORRECTO
-        default:
-            if (mUseSync && xEvent.type == mGlxEventBase + GLX_BufferSwapComplete) {
-                GLXBufferSwapComplete* glxEvent = (GLXBufferSwapComplete*)&xEvent;
-
-                if (glxEvent->type == GLX_EXCHANGE_COMPLETE_INTEL ||
-                        glxEvent->type == GLX_COPY_COMPLETE_INTEL ||
-                        glxEvent->type == GLX_FLIP_COMPLETE_INTEL) {
-
-                    if (mHasReceivedSyncRequest) {
-                        XSyncValue value;
-                        XSyncIntsToValue(&value, mSyncCounterLow, mSyncCounterHigh);
-                        XSyncSetCounter(mDisplay, mSyncCounter, value);
-                        mHasReceivedSyncRequest = false;
-                    }
-                }
-            }
-            continue;
-        }
-        /******************************************************************************/
+    switch (xEvent.type) {
+    case MotionNotify:
+        event.type = OGL_WINDOW_MOUSE_MOVE;
+        event.data.mouse.x = xEvent.xmotion.x;
+        event.data.mouse.y = xEvent.xmotion.y;
         break;
+
+    case ButtonPress:
+    case ButtonRelease:
+        if (xEvent.xbutton.button == 1) {
+            event.type = (xEvent.type == ButtonPress) ? OGL_WINDOW_MOUSE_CLICK_DOWN : OGL_WINDOW_MOUSE_CLICK_UP;
+            event.data.mouse.x = xEvent.xbutton.x;
+            event.data.mouse.y = xEvent.xbutton.y;
+        } else if (xEvent.xbutton.button == 4 || xEvent.xbutton.button == 5) {
+            event.type = OGL_WINDOW_MOUSE_WHEEL;
+            event.data.mouse.x = xEvent.xbutton.x;
+            event.data.mouse.y = xEvent.xbutton.y;
+            event.data.mouse.delta = xEvent.xbutton.button == 4 ? 1 : -1;
+        }
+        break;
+
+    case Expose:
+        event.type = OGL_WINDOW_EXPOSE;
+        break;
+
+    case ConfigureNotify:
+        event.type = OGL_WINDOW_SIZE;
+        event.data.size.width = xEvent.xconfigure.width;
+        event.data.size.height = xEvent.xconfigure.height;
+        break;
+
+    case FocusIn:
+        event.type = OGL_WINDOW_FOCUS_SET;
+        break;
+
+    case FocusOut:
+        event.type = OGL_WINDOW_FOCUS_RELEASE;
+        break;
+
+    case EnterNotify:
+        event.type = OGL_WINDOW_MOUSE_ENTER;
+        break;
+
+    case LeaveNotify:
+        event.type = OGL_WINDOW_MOUSE_LEAVE;
+        break;
+
+    case KeyPress:
+        //TODO
+        //FALTA CHAR
+        event.type = OGL_WINDOW_KEY_UP;
+        event.data.key.code = xEvent.xkey.keycode;
+        break;
+
+    case KeyRelease:
+        //TODO
+        //FALTA CHAR
+        event.type = OGL_WINDOW_KEY_DOWN;
+        event.data.key.code = xEvent.xkey.keycode;
+        break;
+
+    case ClientMessage:
+        if (xEvent.xclient.message_type == mWmProtocols) {
+            if ((Atom)xEvent.xclient.data.l[0] == mNetWmSyncRequest) {
+                mSyncCounterLow = xEvent.xclient.data.l[2];
+                mSyncCounterHigh = xEvent.xclient.data.l[3];
+                mHasReceivedSyncRequest = true;
+            } else if ((Atom)xEvent.xclient.data.l[0] == mWmDeleteWindow) {
+                event.type = OGL_WINDOW_CLOSE;
+            }
+        }
+        break;
+    /******************************************************************************/
+    //TODO
+    //SE PODRIA MEJORAR? TRATANDO DE NO COLOCARLO A LO ULTIMO?
+    //PUEDE SER QUE ASI COMO ESTA PROGRAMADO SYNC REQUEST NO SEA DEL TODO CORRECTO
+    default:
+        if (mUseSync && xEvent.type == mGlxEventBase + GLX_BufferSwapComplete) {
+            GLXBufferSwapComplete* glxEvent = (GLXBufferSwapComplete*)&xEvent;
+
+            if (glxEvent->type == GLX_EXCHANGE_COMPLETE_INTEL ||
+                    glxEvent->type == GLX_COPY_COMPLETE_INTEL ||
+                    glxEvent->type == GLX_FLIP_COMPLETE_INTEL) {
+
+                if (mHasReceivedSyncRequest) {
+                    XSyncValue value;
+                    XSyncIntsToValue(&value, mSyncCounterLow, mSyncCounterHigh);
+                    XSyncSetCounter(mDisplay, mSyncCounter, value);
+                    mHasReceivedSyncRequest = false;
+                }
+            }
+        }
+    /******************************************************************************/
     }
 }
 

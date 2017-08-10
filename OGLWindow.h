@@ -9,6 +9,8 @@
 #ifndef _OGL_WINDOW_H_
 #define _OGL_WINDOW_H_
 
+#define OGL_WINDOW_NONE 0X0000
+
 #define OGL_WINDOW_EXPOSE 0X0001
 #define OGL_WINDOW_SIZE 0X0002
 
