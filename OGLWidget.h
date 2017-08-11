@@ -27,7 +27,7 @@ enum OGLWidgetXFlag {
     OGL_RELATIVE_RIGHT,
     OGL_ALIGN_LEFT,
     OGL_ALIGN_RIGHT,
-    OGL_CENTER_X
+    OGL_ALIGN_CENTER_X
 };
 
 enum OGLWidgetYFlag {
@@ -36,7 +36,7 @@ enum OGLWidgetYFlag {
     OGL_RELATIVE_BOTTOM,
     OGL_ALIGN_TOP,
     OGL_ALIGN_BOTTOM,
-    OGL_CENTER_Y
+    OGL_ALIGN_CENTER_Y
 };
 
 enum OGLWidgetDimensionFlag {
@@ -108,7 +108,7 @@ struct OGLWidgetEvent {
 
 class OGLWidget
 {
-private:
+protected:
     float mXParent;
     float mYParent;
     float mXLeft;

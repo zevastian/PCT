@@ -1,5 +1,6 @@
 #include<iostream>
 #include"OGLWindow.h"
+#include"OGLWidget.h"
 #include<string>
 
 Display* openDisplay()
@@ -64,13 +65,46 @@ unsigned int screenHeight()
 //
 //
 //}
-//
-//void changeNetWMState()
-//{
-//
-//
-//
-//}
+
+class OGLWidgetTEST : public OGLWidget
+{
+
+public:
+
+    OGLWidgetTEST(OGLWidgetDescription desc) : OGLWidget(desc) {
+        //NADA
+    }
+
+    void onEvent(OGLWidgetEvent& event) {
+
+        switch (event.type) {
+
+        case OGL_WIDGET_DRAW:
+            glColor4f(0.9f, 0.9f, 0.9f, 1.0f);
+
+            std::cout << "mXLeft: " << mXLeft << std::endl;
+            std::cout << "mXRight: " << mXRight << std::endl;
+            std::cout << "mYTop: " << mYTop << std::endl;
+            std::cout << "mYBottom: " << mYBottom << std::endl;
+
+            glBegin(GL_QUADS);
+            glVertex2f(mXLeft, mYTop);
+            glVertex2f(mXRight, mYTop);
+            glVertex2f(mXRight, mYBottom);
+            glVertex2f(mXLeft, mYBottom);
+            glEnd();
+            break;
+
+        case OGL_WIDGET_SIZE:
+            OGLWidget::onEvent(event);
+            break;
+
+        case OGL_WIDGET_MOVE:
+            OGLWidget::onEvent(event);
+            break;
+        }
+    };
+};
 
 int main()
 {
@@ -106,12 +140,29 @@ int main()
     }
     glXMakeContextCurrent(display, glxWindow, glxWindow, context);
     /**********************************************************************************/
-
-    int c = 0;
     bool redraw = false;
+    /**********************************************************************************/
+    OGLWidgetDescription descWidget;
+    descWidget.x.value = 10.0f;
+    descWidget.x.flag = OGLWidgetXFlag::OGL_ALIGN_LEFT;
+    descWidget.y.value = 10.0f;
+    descWidget.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
+
+    descWidget.width.value = 33.334f;
+    descWidget.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+    descWidget.height.value = 100.0f;
+    descWidget.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+
+    /**********************************************************************************/
+
+    OGLWidgetTEST test(descWidget);
+    OGLWidgetEvent wEvent;
+    wEvent.type = OGL_WIDGET_MOVE;
+    wEvent.data.move.x = 0.0f;
+    wEvent.data.move.y = 0.0f;
+    test.onEvent(wEvent);
+
     oglwindow.show();
-
-
     OGLWindowEvent event;
     while (true) {
 
@@ -126,6 +177,13 @@ int main()
 
             case OGL_WINDOW_SIZE:
                 glViewport(0, 0, OGL_WINDOW_SIZE_GET_WIDTH(event), OGL_WINDOW_SIZE_GET_HEIGHT(event));
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
+                glOrtho(0.0f, OGL_WINDOW_SIZE_GET_WIDTH(event), OGL_WINDOW_SIZE_GET_HEIGHT(event), 0.0f, 0.0f, 1.0f);
+                wEvent.type = OGL_WIDGET_SIZE;
+                wEvent.data.size.width = OGL_WINDOW_SIZE_GET_WIDTH(event);
+                wEvent.data.size.height = OGL_WINDOW_SIZE_GET_HEIGHT(event);
+                test.onEvent(wEvent);
                 redraw = true;
                 break;
 
@@ -190,8 +248,9 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(177/256.0f, 98/256.0f, 107/256.0f, 1.0f);
+        wEvent.type = OGL_WIDGET_DRAW;
+        test.onEvent(wEvent);
         glXSwapBuffers(display, glxWindow);
-        std::cout << "swap " << c++ << std::endl;
         redraw = false;
     }
 
