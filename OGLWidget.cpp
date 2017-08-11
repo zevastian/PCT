@@ -31,7 +31,7 @@ void OGLWidget::onEvent(OGLWidgetEvent& event)
                                 //mDescription.width.value REPRESENTA UN PORCENTAJE
                                 0.01f*((OGL_WIDGET_SIZE_GET_WIDTH(event) - mXLeft)*mDescription.width.value));
             break;
-
+        /******************************************************************************/
         case OGL_ALIGN_RIGHT:
         case OGL_RELATIVE_RIGHT:
             //mDescription.x.value REPRESENTA LA DISTANCIA RESPECTO DEL MARGEN DERECHO EN UNIDADES DE PIXEL
@@ -41,7 +41,7 @@ void OGLWidget::onEvent(OGLWidgetEvent& event)
                                 //mDescription.width.value REPRESENTA UN PORCENTAJE
                                 0.01f*(mXRight*mDescription.width.value));
             break;
-
+        /******************************************************************************/
         case OGL_ALIGN_CENTER_X:
             float width = (mDescription.width.flag == OGL_PX) ? mDescription.width.value :
                           //mDescription.width.value REPRESENTA UN PORCENTAJE
@@ -59,7 +59,7 @@ void OGLWidget::onEvent(OGLWidgetEvent& event)
                                 //mDescription.height.value REPRESENTA UN PORCENTAJE
                                 0.01f*((OGL_WIDGET_SIZE_GET_HEIGHT(event) - mYTop)*mDescription.height.value));
             break;
-
+        /******************************************************************************/
         case OGL_ALIGN_BOTTOM:
         case OGL_RELATIVE_BOTTOM:
             //mDescription.y.value REPRESENTA LA DISTANCIA RESPECTO DEL MARGEN INFERIOR EN UNIDADES DE PIXEL
@@ -69,7 +69,7 @@ void OGLWidget::onEvent(OGLWidgetEvent& event)
                                 //mDescription.height.value REPRESENTA UN PORCENTAJE
                                 0.01f*(mYBottom*mDescription.height.value));
             break;
-
+        /******************************************************************************/
         case OGL_ALIGN_CENTER_Y:
             float height = (mDescription.height.flag == OGL_PX) ? mDescription.height.value :
                            //mDescription.height.value REPRESENTA UN PORCENTAJE

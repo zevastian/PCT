@@ -331,7 +331,9 @@ void OGLWindow::getEvent(OGLWindowEvent& event)
         break;
 
     case Expose:
-        event.type = OGL_WINDOW_EXPOSE;
+        if (!xEvent.xexpose.count) {
+            event.type = OGL_WINDOW_EXPOSE;
+        }
         break;
 
     case ConfigureNotify:

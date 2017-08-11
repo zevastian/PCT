@@ -82,10 +82,10 @@ public:
         case OGL_WIDGET_DRAW:
             glColor4f(0.9f, 0.9f, 0.9f, 1.0f);
 
-            std::cout << "mXLeft: " << mXLeft << std::endl;
-            std::cout << "mXRight: " << mXRight << std::endl;
-            std::cout << "mYTop: " << mYTop << std::endl;
-            std::cout << "mYBottom: " << mYBottom << std::endl;
+//            std::cout << "mXLeft: " << mXLeft << std::endl;
+//            std::cout << "mXRight: " << mXRight << std::endl;
+//            std::cout << "mYTop: " << mYTop << std::endl;
+//            std::cout << "mYBottom: " << mYBottom << std::endl;
 
             glBegin(GL_QUADS);
             glVertex2f(mXLeft, mYTop);
