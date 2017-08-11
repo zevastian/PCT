@@ -48,13 +48,13 @@ void OGLImage::onEvent(OGLWidgetEvent& event)
 
                 if (mScale == OGL_IMAGE_ADJUST) {
                     //DRAW(mImageX, OGLWidget::mYTop, mImageWidth, height, 0.0f, 0.0f, 1.0f, 1.0f);
-                } else if (mScale == OGL_IMAGE_FILL) {
+                } else {
                     //DRAW(OGLWidget::mXLeft, OGLWidget::mYTop, width, height, 0.0f, mUVTextureOffset, 1.0f, 1.0f - mUVTextureOffset);
                 }
             } else {
                 if (mScale == OGL_IMAGE_ADJUST) {
                     //DRAW(OGLWidget::mXLeft, mImageY, width, mImageHeight, 0.0f, 0.0f, 1.0f, 1.0f);
-                } else if (mScale == OGL_IMAGE_FILL) {
+                } else {
                     //DRAW(OGLWidget::mXLeft, OGLWidget::mYTop, width, height, mUVTextureOffset, 0.0f, 1.0f - mUVTextureOffset, 1.0f);
                 }
             }
