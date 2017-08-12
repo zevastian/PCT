@@ -16,8 +16,8 @@ private:
     float mImageY;
     float mImageWidth;
     float mImageHeight;
-    float mWidthTexture;
-    float mHeightTexture;
+    float mTextureWidth;
+    float mTextureHeight;
     float mUVTextureOffset;
     OGL_IMAGE_SCALE mScale;
 

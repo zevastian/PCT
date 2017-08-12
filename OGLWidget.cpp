@@ -65,9 +65,8 @@ void OGLWidget::onEvent(OGLWidgetEvent& event)
                 mXRight = OGL_WIDGET_SIZE_GET_WIDTH(event) - mDescription.x.value;
                 mXLeft = mXRight - 0.01f*mXRight*mDescription.width.value;
             } else {
-                float width = 0.01f*OGL_WIDGET_SIZE_GET_WIDTH(event)*mDescription.width.value;
-                mXRight = 0.5f*(OGL_WIDGET_SIZE_GET_WIDTH(event) + width);
-                mXLeft = 0.5f*(OGL_WIDGET_SIZE_GET_WIDTH(event) - width);
+                mXRight = OGL_WIDGET_SIZE_GET_WIDTH(event)*(0.5f + 0.005f*mDescription.width.value);
+                mXLeft = OGL_WIDGET_SIZE_GET_WIDTH(event)*(0.5f - 0.005f*mDescription.width.value);
             }
         }
 
@@ -88,9 +87,8 @@ void OGLWidget::onEvent(OGLWidgetEvent& event)
                 mYBottom = OGL_WIDGET_SIZE_GET_HEIGHT(event) - mDescription.y.value;
                 mYTop = mYBottom - 0.01f*mYBottom*mDescription.height.value;
             } else {
-                float height = 0.01f*OGL_WIDGET_SIZE_GET_HEIGHT(event)*mDescription.height.value;
-                mYBottom = 0.5f*(OGL_WIDGET_SIZE_GET_HEIGHT(event) + height);
-                mYTop = 0.5f*(OGL_WIDGET_SIZE_GET_HEIGHT(event) - height);
+                mYBottom = OGL_WIDGET_SIZE_GET_HEIGHT(event)*(0.5f + 0.005f*mDescription.height.value);
+                mYTop = OGL_WIDGET_SIZE_GET_HEIGHT(event)*(0.5f - 0.005f*mDescription.height.value);
             }
         }
     }
