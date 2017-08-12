@@ -10,7 +10,7 @@ OGLImage::~OGLImage()
 
 }
 
-void OGLImage::onEvent(OGLWidgetEvent& event)
+int OGLImage::onEvent(OGLWidgetEvent event)
 {
     OGLWidget::onEvent(event);
     float width = OGLWidget::mXRight - OGLWidget::mXLeft;
@@ -60,4 +60,6 @@ void OGLImage::onEvent(OGLWidgetEvent& event)
             }
         }
     }
+
+    return OGL_WIDGET_RETURN_NONE;
 }
