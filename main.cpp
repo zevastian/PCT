@@ -1,7 +1,21 @@
 #include<iostream>
 #include"OGLWindow.h"
 #include"OGLWidget.h"
+#include"OGLImage.h"
 #include<string>
+#include<jpeglib.h>
+#include<setjmp.h>
+#include<vector>
+#include<stdexcept>
+#include<fstream>
+
+/*********************************************************************************************/
+struct jpeg_error {
+    jpeg_error_mgr pub;
+    jmp_buf setjmp_buffer;
+};
+typedef struct jpeg_error *jpeg_error_ptr;
+/*********************************************************************************************/
 
 Display* openDisplay()
 {
@@ -66,45 +80,89 @@ unsigned int screenHeight()
 //
 //}
 
-class OGLWidgetTEST : public OGLWidget
+void jpeg_error_func(j_common_ptr cinfo)
 {
+    jpeg_error_ptr err = (jpeg_error_ptr) cinfo->err;
+    (*cinfo->err->output_message)(cinfo);
+    longjmp(err->setjmp_buffer, 1);
+}
 
-public:
+bool decodeJPEGImage(std::vector<char> jpeg, unsigned int &width, unsigned int &height, std::vector<char> &bufferDest)
+{
+    jpeg_decompress_struct cinfo;
+    jpeg_error jerr;
 
-    OGLWidgetTEST(OGLWidgetDescription desc) : OGLWidget(desc) {
-        //NADA
+    cinfo.err = jpeg_std_error(&jerr.pub);
+    jerr.pub.error_exit = jpeg_error_func;
+
+    if (!jpeg.size()) {
+        return false;
     }
 
-    void onEvent(OGLWidgetEvent& event) {
+    FILE* infile = NULL;
+    if (!(infile = fmemopen(jpeg.data(), jpeg.size(), "rb"))) {
+        throw std::runtime_error("fmemopen failed");
+    }
 
-        switch (event.type) {
+    if (setjmp(jerr.setjmp_buffer)) {
+        jpeg_destroy_decompress(&cinfo);
+        fclose(infile);
+        throw std::runtime_error("setjmp return 1");
+    }
 
-        case OGL_WIDGET_DRAW:
-            glColor4f(0.9f, 0.9f, 0.9f, 1.0f);
+    jpeg_create_decompress(&cinfo);
+    jpeg_stdio_src(&cinfo, infile);
 
-//            std::cout << "mXLeft: " << mXLeft << std::endl;
-//            std::cout << "mXRight: " << mXRight << std::endl;
-//            std::cout << "mYTop: " << mYTop << std::endl;
-//            std::cout << "mYBottom: " << mYBottom << std::endl;
+    jpeg_read_header(&cinfo, TRUE);
+    cinfo.dct_method = JDCT_DEFAULT;
+    cinfo.out_color_space = JCS_EXT_BGRA;
+    jpeg_start_decompress(&cinfo);
 
-            glBegin(GL_QUADS);
-            glVertex2f(mXLeft, mYTop);
-            glVertex2f(mXRight, mYTop);
-            glVertex2f(mXRight, mYBottom);
-            glVertex2f(mXLeft, mYBottom);
-            glEnd();
-            break;
+    if (!cinfo.output_width || !cinfo.output_height) {
+        jpeg_destroy_decompress(&cinfo);
+        fclose(infile);
+        return false;
+    }
 
-        case OGL_WIDGET_SIZE:
-            OGLWidget::onEvent(event);
-            break;
+    width = cinfo.output_width;
+    height = cinfo.output_height;
 
-        case OGL_WIDGET_MOVE:
-            OGLWidget::onEvent(event);
-            break;
-        }
-    };
-};
+    int pitch = cinfo.output_width*cinfo.output_components;
+    bufferDest.resize(cinfo.output_height*pitch);
+
+    unsigned char* buffer = (unsigned char*)bufferDest.data();
+    while (cinfo.output_scanline < cinfo.output_height) {
+        jpeg_read_scanlines(&cinfo, &buffer, 1);
+        buffer += pitch;
+    }
+
+    jpeg_finish_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
+    fclose(infile);
+
+    return true;
+}
+
+bool loadTexture(GLuint &texture, unsigned int &width, unsigned int& height, std::vector<char> &src)
+{
+    std::vector<char> dst;
+    if (!decodeJPEGImage(src, width, height, dst)) {
+        return false;
+    }
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, dst.data());
+    glGenerateMipmap (GL_TEXTURE_2D);
+
+    return true;
+}
 
 int main()
 {
@@ -148,14 +206,22 @@ int main()
     descWidget.y.value = 10.0f;
     descWidget.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
 
-    descWidget.width.value = 33.334f;
+    descWidget.width.value = 100.0f;
     descWidget.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
     descWidget.height.value = 100.0f;
     descWidget.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
 
+    OGLImageDescription descImage;
+    descImage.widget = descWidget;
+    descImage.image.scale = OGL_IMAGE_FILL;
+
+    std::ifstream stream("img.jpg", std::ios::in | std::ios::binary);
+    std::vector<char> buffer((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    loadTexture(descImage.texture.texture, descImage.texture.width, descImage.texture.height, buffer);
+
     /**********************************************************************************/
 
-    OGLWidgetTEST test(descWidget);
+    OGLImage test(descImage);
     OGLWidgetEvent wEvent;
     wEvent.type = OGL_WIDGET_MOVE;
     wEvent.data.move.x = 0.0f;

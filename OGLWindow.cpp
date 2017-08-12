@@ -76,7 +76,7 @@ OGLWindow::OGLWindow(OGLWindowDescription description)
 
     XSetWindowAttributes wndAttr;
     wndAttr.border_pixel = 0;
-    wndAttr.background_pixel = 0;
+    wndAttr.backing_store = Always;
     wndAttr.colormap = mColormap;
     wndAttr.event_mask = ExposureMask | StructureNotifyMask | FocusChangeMask |
                          KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
@@ -84,8 +84,8 @@ OGLWindow::OGLWindow(OGLWindowDescription description)
 
     mWindow = XCreateWindow(mDisplay, DefaultRootWindow(mDisplay), 0, 0,
                             description.width, description.height, 0, visual->depth,
-                            InputOutput, visual->visual, CWBorderPixel | CWBackPixel |
-                            CWColormap | CWEventMask, &wndAttr);
+                            InputOutput, visual->visual, CWBorderPixel | CWBackingStore | CWColormap |
+                            CWEventMask, &wndAttr);
 
     XFree(visual);
     if (!mWindow) {
@@ -183,6 +183,8 @@ OGLWindow::OGLWindow(OGLWindowDescription description)
         XFree(hints);
     }
     /******************************************************************************/
+    mWindowWidth = -1;
+    mWindowHeight = -1;
     mX = description.x;
     mY = description.y;
 }
@@ -337,9 +339,13 @@ void OGLWindow::getEvent(OGLWindowEvent& event)
         break;
 
     case ConfigureNotify:
-        event.type = OGL_WINDOW_SIZE;
-        event.data.size.width = xEvent.xconfigure.width;
-        event.data.size.height = xEvent.xconfigure.height;
+        if (xEvent.xconfigure.width != mWindowWidth || xEvent.xconfigure.height != mWindowHeight) {
+            event.type = OGL_WINDOW_SIZE;
+            mWindowWidth = xEvent.xconfigure.width;
+            mWindowHeight = xEvent.xconfigure.height;
+            event.data.size.width = xEvent.xconfigure.width;
+            event.data.size.height = xEvent.xconfigure.height;
+        }
         break;
 
     case FocusIn:

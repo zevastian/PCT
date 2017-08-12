@@ -126,6 +126,8 @@ private:
     bool mUseSync;
     bool mHasReceivedSyncRequest;
     int mGlxEventBase;
+    int mWindowWidth;
+    int mWindowHeight;
     int mX;
     int mY;
 

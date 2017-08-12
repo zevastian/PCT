@@ -21,41 +21,6 @@
 
 #define OGL_WIDGET_CLOSE 0X4000
 
-struct OGLWidgetEvent {
-    int type;
-    union {
-        struct {
-            unsigned int width;
-            unsigned int height;
-        } size;
-        struct {
-            int x;
-            int y;
-        } move;
-        struct {
-            unsigned int x;
-            unsigned int y;
-            char delta;
-        } mouse;
-        struct {
-            int code;
-            char ch;
-        } key;
-    } data;
-};
-
-#define OGL_WIDGET_SIZE_GET_WIDTH(event) (event.data.size.width)
-#define OGL_WIDGET_SIZE_GET_HEIGHT(event) (event.data.size.height)
-#define OGL_WIDGET_MOVE_GET_X(event) (event.data.move.x)
-#define OGL_WIDGET_MOVE_GET_Y(event) (event.data.move.y)
-
-#define OGL_WIDGET_MOUSE_GET_X(event) (event.data.mouse.x)
-#define OGL_WIDGET_MOUSE_GET_Y(event) (event.data.mouse.y)
-#define OGL_WIDGET_MOUSE_GET_DELTA(event) (event.data.mouse.delta)
-
-#define OGL_WIDGET_KEY_GET_CODE(event) (event.data.key.code)
-#define OGL_WIDGET_KEY_GET_CHAR(event) (event.data.key.ch)
-
 enum OGLWidgetXFlag {
     OGL_XFLAG_NONE,
     OGL_RELATIVE_LEFT,
@@ -106,8 +71,40 @@ struct OGLWidgetDescription {
     }
 };
 
-#define OGL_WIDGET_RETURN_NONE 0x0000
-#define OGL_WIDGET_RETURN_NEED_DRAW 0x0001
+struct OGLWidgetEvent {
+    int type;
+    union {
+        struct {
+            unsigned int width;
+            unsigned int height;
+        } size;
+        struct {
+            int x;
+            int y;
+        } move;
+        struct {
+            unsigned int x;
+            unsigned int y;
+            char delta;
+        } mouse;
+        struct {
+            int code;
+            char ch;
+        } key;
+    } data;
+};
+
+#define OGL_WIDGET_SIZE_GET_WIDTH(event) (event.data.size.width)
+#define OGL_WIDGET_SIZE_GET_HEIGHT(event) (event.data.size.height)
+#define OGL_WIDGET_MOVE_GET_X(event) (event.data.move.x)
+#define OGL_WIDGET_MOVE_GET_Y(event) (event.data.move.y)
+
+#define OGL_WIDGET_MOUSE_GET_X(event) (event.data.mouse.x)
+#define OGL_WIDGET_MOUSE_GET_Y(event) (event.data.mouse.y)
+#define OGL_WIDGET_MOUSE_GET_DELTA(event) (event.data.mouse.delta)
+
+#define OGL_WIDGET_KEY_GET_CODE(event) (event.data.key.code)
+#define OGL_WIDGET_KEY_GET_CHAR(event) (event.data.key.ch)
 
 class OGLWidget
 {
@@ -127,7 +124,7 @@ public:
     ~OGLWidget();
 
     /**/
-    int onEvent(OGLWidgetEvent event);
+    void onEvent(OGLWidgetEvent& event);
 };
 
 #endif
