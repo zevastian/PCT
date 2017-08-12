@@ -42,8 +42,9 @@ OGLWidget::~OGLWidget()
 void OGLWidget::onEvent(OGLWidgetEvent& event)
 {
     if (event.type == OGL_WIDGET_MOVE) {
-        //SI EL PADRE CAMBIA DE POSICION PERO NO DE TAMAÑO
-        //COMO REACCIONAN LOS CHILDREN?
+        //TODO OGL_WIDGET_MOVE PRECEDE A UN OGL_WIDGET_SIZE
+        //CON TOTAL INDEPENDENCIA DE SI CAMBIO O NO
+        //EL TAMAÑO DEL WIDGET PARENT
         mXParent = OGL_WIDGET_MOVE_GET_X(event);
         mYParent = OGL_WIDGET_MOVE_GET_Y(event);
 

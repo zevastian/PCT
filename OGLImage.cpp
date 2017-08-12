@@ -66,7 +66,8 @@ void OGLImage::onEvent(OGLWidgetEvent& event)
             break;
         }
     } else if (event.type == OGL_WIDGET_DRAW) {
-
+        //ESTO LUEGO DEBERIA TENER UNA IMPLEMENTACION
+        //INDEPENDIENTE DE LA PLATAFORMA
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, mDescription.texture.texture);
         glBegin(GL_QUADS);
