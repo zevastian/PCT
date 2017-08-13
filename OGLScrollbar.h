@@ -11,6 +11,10 @@ private:
     bool mBarDisable;
     bool mBarHover;
     bool mBarPressed;
+    float mMaxRangeValue;
+    bool changeBarPosition(float targetYValue);
+    bool inToRect(int x, int y, int xLeftRect, int yTopRect, int xRightRect, int yBottomRect);
+    void drawBar();
 
 public:
     /**/
