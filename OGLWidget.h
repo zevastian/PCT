@@ -106,6 +106,11 @@ struct OGLWidgetEvent {
 #define OGL_WIDGET_KEY_GET_CODE(event) (event.data.key.code)
 #define OGL_WIDGET_KEY_GET_CHAR(event) (event.data.key.ch)
 
+#define OGL_WIDGET_RET_NONE 0x0000
+#define OGL_WIDGET_RET_DRAW 0x0001
+#define OGL_WIDGET_RET_FOCUS_GET 0x002
+#define OGL_WIDGET_RET_FOCUS_RELEASE 0x004
+
 class OGLWidget
 {
 protected:
@@ -124,7 +129,7 @@ public:
     ~OGLWidget();
 
     /**/
-    void onEvent(OGLWidgetEvent& event);
+    int onEvent(OGLWidgetEvent event);
 };
 
 #endif

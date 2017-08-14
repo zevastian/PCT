@@ -39,7 +39,7 @@ OGLWidget::~OGLWidget()
 
 }
 
-void OGLWidget::onEvent(OGLWidgetEvent& event)
+int OGLWidget::onEvent(OGLWidgetEvent event)
 {
     if (event.type == OGL_WIDGET_MOVE) {
         //TODO OGL_WIDGET_MOVE PRECEDE A UN OGL_WIDGET_SIZE
@@ -93,4 +93,5 @@ void OGLWidget::onEvent(OGLWidgetEvent& event)
             }
         }
     }
+    return OGL_WIDGET_RET_NONE;
 }

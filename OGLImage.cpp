@@ -18,7 +18,7 @@ OGLImage::~OGLImage()
 
 }
 
-void OGLImage::onEvent(OGLWidgetEvent& event)
+int OGLImage::onEvent(OGLWidgetEvent event)
 {
     OGLWidget::onEvent(event);
     float width = OGLWidget::mXRight - OGLWidget::mXLeft;
@@ -86,5 +86,7 @@ void OGLImage::onEvent(OGLWidgetEvent& event)
         glVertex2f(mImageX, mImageY + mImageHeight);
 
         glEnd();
+        glDisable(GL_TEXTURE_2D);
     }
+    return OGL_WIDGET_RET_NONE;
 }

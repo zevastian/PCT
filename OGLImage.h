@@ -47,7 +47,7 @@ public:
     ~OGLImage();
 
     /**/
-    void onEvent(OGLWidgetEvent& event);
+    int onEvent(OGLWidgetEvent event);
 };
 
 #endif

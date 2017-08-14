@@ -1,5 +1,6 @@
 #include<epoxy/gl.h>
 #include"OGLScrollbar.h"
+#include"OGLUtils.h"
 
 OGLScrollbar::OGLScrollbar(OGLWidgetDescription description) : OGLWidget(description)
 {
@@ -28,12 +29,6 @@ bool OGLScrollbar::updateBarStatus(float targetYValue)
         return true;
     }
     return false;
-}
-
-bool OGLScrollbar::inToRect(int x, int y, int xLeftRect, int yTopRect, int xRightRect, int yBottomRect)
-{
-    return (x > xLeftRect) && (x < xRightRect) &&
-           (y > yTopRect) && (y < yBottomRect);
 }
 
 void OGLScrollbar::drawBar()
@@ -82,32 +77,33 @@ float OGLScrollbar::getValue()
     return mCurrentValue;
 }
 
-void OGLScrollbar::onEvent(OGLWidgetEvent& event)
+int OGLScrollbar::onEvent(OGLWidgetEvent event)
 {
-    switch (event.type) {
+    int ret = OGL_WIDGET_RET_NONE;
 
+    switch (event.type) {
     case OGL_WIDGET_MOUSE_MOVE:
         if (!mBarDisable) {
             if (mBarPressed) {
                 if (updateBarStatus(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - mLastYClick)) {
-                    //NOTIFICO DRAW
+                    ret |= OGL_WIDGET_RET_DRAW;
                 }
             }
-            if (inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                         OGLWidget::mXLeft, OGLWidget::mYTop + mBarY,
-                         OGLWidget::mXRight, OGLWidget::mYTop + mBarY + mBarHeight)) {
+            if (utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
+                                OGLWidget::mXLeft, OGLWidget::mYTop + mBarY,
+                                OGLWidget::mXRight, OGLWidget::mYTop + mBarY + mBarHeight)) {
 
                 if (!mBarHover) {
                     mBarHover = true;
                     if (!mBarPressed) {
-                        //NOTIFICO DRAW
+                        ret |= OGL_WIDGET_RET_DRAW;
                     }
                 }
             } else {
                 if (mBarHover) {
                     mBarHover = false;
                     if (!mBarPressed) {
-                        //NOTIFICO DRAW
+                        ret |= OGL_WIDGET_RET_DRAW;
                     }
                 }
             }
@@ -125,19 +121,19 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
         if (!mBarDisable) {
             float barWidth = OGLWidget::mXRight - OGLWidget::mXLeft;
             float barXCenter = OGLWidget::mXLeft + 0.5f*barWidth;
-            if (inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                         barXCenter - 1.5f*barWidth, OGLWidget::mYTop,
-                         barXCenter + 1.5f*barWidth, OGLWidget::mYBottom)) {
+            if (utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
+                                barXCenter - SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYTop,
+                                barXCenter + SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYBottom)) {
 
-                //HAY UN CAMBIO DE FOCO QUE TENGO QUE NOTIFICAR
                 mBarPressed = true;
-                if (!inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                              barXCenter - 1.5f*barWidth, OGLWidget::mYTop + mBarY,
-                              barXCenter + 1.5f*barWidth, OGLWidget::mYTop + mBarY + mBarHeight)) {
+                ret |= OGL_WIDGET_RET_FOCUS_GET;
+                if (!utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
+                                     barXCenter - SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYTop + mBarY,
+                                     barXCenter + SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYTop + mBarY + mBarHeight)) {
 
                     if (updateBarStatus(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - 0.5f*mBarHeight)) {
                         mBarHover = true;
-                        //NOTIFICO DRAW
+                        ret |= OGL_WIDGET_RET_DRAW;
                     }
                 }
                 mLastYClick = OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - mBarY;
@@ -148,10 +144,10 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
     case OGL_WIDGET_MOUSE_CLICK_UP:
         if (!mBarDisable) {
             if (mBarPressed) {
-                //HAY UN CAMBIO DE FOCO QUE TENGO QUE NOTIFICAR
+                ret |= OGL_WIDGET_RET_FOCUS_RELEASE;
                 mBarPressed = false;
                 if (!mBarHover) {
-                    //NOTIFICO DRAW
+                    ret |= OGL_WIDGET_RET_DRAW;
                 }
             }
         }
@@ -159,10 +155,9 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
 
     case OGL_WIDGET_MOUSE_WHEEL:
         if (!mBarPressed && !mBarDisable) {
-            //CONVIENE PONER UN SCROLL_ADVANCE PARA INDICAR LAS UNIDADES DE SALTO
             float maxOffset = ((OGLWidget::mYBottom - OGLWidget::mYTop) - mBarHeight)/mMaxRangeValue;
-            if (updateBarStatus(mBarY - (OGL_WIDGET_MOUSE_GET_DELTA(event)*64.0f*maxOffset))) {
-                //NOTIFICO DRAW
+            if (updateBarStatus(mBarY - (OGL_WIDGET_MOUSE_GET_DELTA(event)*SCROLL_ADVANCE*maxOffset))) {
+                ret |= OGL_WIDGET_RET_DRAW;
             }
         }
         break;
@@ -170,7 +165,7 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
     case OGL_WIDGET_MOUSE_LEAVE:
         if (mBarHover && !mBarPressed) {
             mBarHover = false;
-            //NOTIFICO DRAW
+            ret |= OGL_WIDGET_RET_DRAW;
         }
         break;
 
@@ -178,18 +173,19 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
         if (mBarPressed || mBarHover) {
             mBarPressed = false;
             mBarHover = false;
-            //HAY UN CAMBIO DE FOCO QUE TENGO QUE NOTIFICAR
-            //NOTIFICO DRAW
+            ret |= OGL_WIDGET_RET_FOCUS_RELEASE;
+            ret |= OGL_WIDGET_RET_DRAW;
         }
         break;
 
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
-
+        //EN UN EVENTO SIZE NO ES NECESARIO NOTIFICAR
+        //QUE SE NECECITA ACTUALIZAR EL CONTENIDO
         mBarHover = false;
         if (mBarPressed) {
             mBarPressed = false;
-            //HAY UN CAMBIO DE FOCO QUE TENGO QUE NOTIFICAR
+            ret |= OGL_WIDGET_RET_FOCUS_RELEASE;
         }
 
         float widgetHeight = OGLWidget::mYBottom - OGLWidget::mYTop;
@@ -201,8 +197,8 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
             mBarDisable = false;
             updateBarStatus((mCurrentValue*(widgetHeight - mBarHeight))/(mMaxRangeValue - widgetHeight));
         }
-
-        //NOTIFICO DRAW
         break;
     }
+
+    return ret;
 }

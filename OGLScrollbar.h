@@ -3,6 +3,9 @@
 #ifndef _OGL_SCROLLBAR_H_
 #define _OGL_SCROLLBAR_H_
 
+#define SCROLL_ADVANCE 64.0f
+#define SCROLL_WIDTH_MULT 1.5f
+
 class OGLScrollbar : public OGLWidget
 {
 private:
@@ -15,7 +18,6 @@ private:
     float mCurrentValue;
     float mMaxRangeValue;
     bool updateBarStatus(float targetYValue);
-    bool inToRect(int x, int y, int xLeftRect, int yTopRect, int xRightRect, int yBottomRect);
     void drawBar();
 
 public:
@@ -32,7 +34,7 @@ public:
     float getValue();
 
     /**/
-    void onEvent(OGLWidgetEvent& event);
+    int onEvent(OGLWidgetEvent event);
 };
 
 #endif
