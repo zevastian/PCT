@@ -11,8 +11,11 @@ private:
     bool mBarDisable;
     bool mBarHover;
     bool mBarPressed;
+    int mLastYClick;
+    float mCurrentValue;
     float mMaxRangeValue;
     bool changeBarPosition(float targetYValue);
+    void updateCurrentValue();
     bool inToRect(int x, int y, int xLeftRect, int yTopRect, int xRightRect, int yBottomRect);
     void drawBar();
 
@@ -21,6 +24,13 @@ public:
     OGLScrollbar(OGLWidgetDescription description);
     /**/
     ~OGLScrollbar();
+
+    /**/
+    void setValue(float value);
+    /**/
+    void setMaxRange(float value);
+    /**/
+    float getValue();
 
     /**/
     void onEvent(OGLWidgetEvent& event);

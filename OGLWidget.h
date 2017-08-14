@@ -83,8 +83,8 @@ struct OGLWidgetEvent {
             int y;
         } move;
         struct {
-            unsigned int x;
-            unsigned int y;
+            int x;
+            int y;
             char delta;
         } mouse;
         struct {

@@ -64,8 +64,8 @@ struct OGLWindowEvent {
             unsigned int height;
         } size;
         struct {
-            unsigned int x;
-            unsigned int y;
+            int x;
+            int y;
             char delta;
         } mouse;
         struct {

@@ -26,6 +26,12 @@ bool OGLScrollbar::changeBarPosition(float targetYValue)
     return false;
 }
 
+void OGLScrollbar::updateCurrentValue()
+{
+    float widgetHeight = OGLWidget::mYBottom - OGLWidget::mYTop;
+    mCurrentValue = ((mMaxRangeValue - widgetHeight)*mBarY)/(widgetHeight - mBarHeight);
+}
+
 bool OGLScrollbar::inToRect(int x, int y, int xLeftRect, int yTopRect, int xRightRect, int yBottomRect)
 {
     return (x > xLeftRect) && (x < xRightRect) &&
@@ -59,6 +65,25 @@ void OGLScrollbar::drawBar()
     glEnd();
 }
 
+void OGLScrollbar::setValue(float value)
+{
+    if (value >= 0.0f && value <= mMaxRangeValue) {
+        mCurrentValue = value;
+    }
+}
+
+void OGLScrollbar::setMaxRange(float value)
+{
+    if (value >= 0.0f) {
+        mMaxRangeValue = value;
+    }
+}
+
+float OGLScrollbar::getValue()
+{
+    return mCurrentValue;
+}
+
 void OGLScrollbar::onEvent(OGLWidgetEvent& event)
 {
     switch (event.type) {
@@ -66,9 +91,9 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
     case OGL_WIDGET_MOUSE_MOVE:
         if (!mBarDisable) {
             if (mBarPressed) {
-                if (changeBarPosition(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - 0.5f*mBarHeight)) {
+                if (changeBarPosition(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - mLastYClick)) {
+                    updateCurrentValue();
                     //NOTIFICO DRAW
-                    //CAMBIA EL OFFSET
                 }
             }
             if (inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
@@ -109,16 +134,17 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
 
                 //HAY UN CAMBIO DE FOCO QUE TENGO QUE NOTIFICAR
                 mBarPressed = true;
-                if (inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                             barXCenter - 1.5f*barWidth, OGLWidget::mYTop + mBarY,
-                             barXCenter + 1.5f*barWidth, OGLWidget::mYTop + mBarY + mBarHeight)) {
+                if (!inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
+                              barXCenter - 1.5f*barWidth, OGLWidget::mYTop + mBarY,
+                              barXCenter + 1.5f*barWidth, OGLWidget::mYTop + mBarY + mBarHeight)) {
 
                     if (changeBarPosition(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - 0.5f*mBarHeight)) {
                         mBarHover = true;
-                        //CAMBIA EL OFFSET
+                        updateCurrentValue();
                         //NOTIFICO DRAW
                     }
                 }
+                mLastYClick = OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - mBarY;
             }
         }
         break;
@@ -140,7 +166,7 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
             //CONVIENE PONER UN SCROLL_ADVANCE PARA INDICAR LAS UNIDADES DE SALTO
             float maxOffset = ((OGLWidget::mYBottom - OGLWidget::mYTop) - mBarHeight)/mMaxRangeValue;
             if (changeBarPosition(mBarY - (OGL_WIDGET_MOUSE_GET_DELTA(event)*64.0f*maxOffset))) {
-                //CAMBIA EL OFFSET
+                updateCurrentValue();
                 //NOTIFICO DRAW
             }
         }
@@ -176,14 +202,16 @@ void OGLScrollbar::onEvent(OGLWidgetEvent& event)
         if (mBarHeight >= widgetHeight) {
             mBarHeight = widgetHeight;
             mBarDisable = true;
-            //OFFSET = 0
+            mCurrentValue = 0.0f;
         } else {
-            mBarDisable = false;
-
+            if (mBarDisable) {
+                mBarDisable = false;
+                mCurrentValue = 0.0f;
+            }
+            changeBarPosition((mCurrentValue*(widgetHeight - mBarHeight))/(mMaxRangeValue - widgetHeight));
         }
 
         //NOTIFICO DRAW
-        //CAMBIA EL OFFSET
         break;
     }
 }

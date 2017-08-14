@@ -8,6 +8,7 @@
 #include<vector>
 #include<stdexcept>
 #include<fstream>
+#include"OGLScrollbar.h"
 
 /*********************************************************************************************/
 struct jpeg_error {
@@ -202,26 +203,31 @@ int main()
     /**********************************************************************************/
     OGLWidgetDescription descWidget;
     descWidget.x.value = 10.0f;
-    descWidget.x.flag = OGLWidgetXFlag::OGL_ALIGN_LEFT;
+    descWidget.x.flag = OGLWidgetXFlag::OGL_ALIGN_RIGHT;
     descWidget.y.value = 10.0f;
     descWidget.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
 
-    descWidget.width.value = 100.0f;
-    descWidget.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+    descWidget.width.value = 6.0f;
+    descWidget.width.flag = OGLWidgetDimensionFlag::OGL_PX;
     descWidget.height.value = 100.0f;
     descWidget.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
 
-    OGLImageDescription descImage;
-    descImage.widget = descWidget;
-    descImage.image.scale = OGL_IMAGE_FILL;
+//    OGLImageDescription descImage;
+//    descImage.widget = descWidget;
+//    descImage.image.scale = OGL_IMAGE_FILL;
+//
+//    std::ifstream stream("img.jpg", std::ios::in | std::ios::binary);
+//    std::vector<char> buffer((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+//    loadTexture(descImage.texture.texture, descImage.texture.width, descImage.texture.height, buffer);
+//
+//    /**********************************************************************************/
+//
+//    OGLImage test(descImage);
 
-    std::ifstream stream("img.jpg", std::ios::in | std::ios::binary);
-    std::vector<char> buffer((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-    loadTexture(descImage.texture.texture, descImage.texture.width, descImage.texture.height, buffer);
+    OGLScrollbar test(descWidget);
+    test.setMaxRange(10000);
+    test.setValue(0);
 
-    /**********************************************************************************/
-
-    OGLImage test(descImage);
     OGLWidgetEvent wEvent;
     wEvent.type = OGL_WIDGET_MOVE;
     wEvent.data.move.x = 0.0f;
@@ -233,7 +239,7 @@ int main()
     while (true) {
 
         while (!redraw || (redraw && oglwindow.pendingEvent())) {
-
+            redraw = true;
             oglwindow.getEvent(event);
             switch (event.type) {
 
@@ -258,37 +264,57 @@ int main()
                 glXDestroyContext(display, context);
                 return 0;
 
-    //        case OGL_WINDOW_MOUSE_MOVE:
-    //            std::cout << "x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
-    //            break;
-    //
-    //        case OGL_WINDOW_MOUSE_WHEEL:
-    //            std::cout << "delta: " << std::to_string(OGL_WINDOW_MOUSE_GET_DELTA(event)) << std::endl;
-    //            break;
-    //
-    //        case OGL_WINDOW_MOUSE_CLICK_UP:
-    //            std::cout << "click up en x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
-    //            break;
-    //
-    //        case OGL_WINDOW_MOUSE_CLICK_DOWN:
-    //            std::cout << "click down en x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
-    //            break;
-    //
-    //        case OGL_WINDOW_FOCUS_SET:
-    //            std::cout << "focus set" << std::endl;
-    //            break;
-    //
-    //        case OGL_WINDOW_FOCUS_RELEASE:
-    //            std::cout << "focus release" << std::endl;
-    //            break;
-    //
-    //        case OGL_WINDOW_MOUSE_ENTER:
-    //            std::cout << "enter" << std::endl;
-    //            break;
-    //
-    //        case OGL_WINDOW_MOUSE_LEAVE:
-    //            std::cout << "leave" << std::endl;
-    //            break;
+            case OGL_WINDOW_MOUSE_MOVE:
+                wEvent.type = OGL_WIDGET_MOUSE_MOVE;
+                wEvent.data.mouse.x = OGL_WINDOW_MOUSE_GET_X(event);
+                wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
+                test.onEvent(wEvent);
+                //std::cout << "x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
+                break;
+
+            case OGL_WINDOW_MOUSE_WHEEL:
+                wEvent.type = OGL_WIDGET_MOUSE_WHEEL;
+                wEvent.data.mouse.delta = OGL_WINDOW_MOUSE_GET_DELTA(event);
+                //wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
+                test.onEvent(wEvent);
+                //std::cout << "delta: " << std::to_string(OGL_WINDOW_MOUSE_GET_DELTA(event)) << std::endl;
+                break;
+
+            case OGL_WINDOW_MOUSE_CLICK_UP:
+                wEvent.type = OGL_WIDGET_MOUSE_CLICK_UP;
+                wEvent.data.mouse.x = OGL_WINDOW_MOUSE_GET_X(event);
+                wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
+                test.onEvent(wEvent);
+                //std::cout << "click up en x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
+                break;
+
+            case OGL_WINDOW_MOUSE_CLICK_DOWN:
+                wEvent.type = OGL_WIDGET_MOUSE_CLICK_DOWN;
+                wEvent.data.mouse.x = OGL_WINDOW_MOUSE_GET_X(event);
+                wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
+                test.onEvent(wEvent);
+                //std::cout << "click down en x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
+                break;
+
+            case OGL_WINDOW_FOCUS_SET:
+                std::cout << "focus set" << std::endl;
+                break;
+
+            case OGL_WINDOW_FOCUS_RELEASE:
+                wEvent.type = OGL_WIDGET_FOCUS_RELEASE;
+                test.onEvent(wEvent);
+                //std::cout << "focus release" << std::endl;
+                break;
+
+            case OGL_WINDOW_MOUSE_ENTER:
+                std::cout << "enter" << std::endl;
+                break;
+
+            case OGL_WINDOW_MOUSE_LEAVE:
+                std::cout << "leave" << std::endl;
+                wEvent.type = OGL_WIDGET_MOUSE_LEAVE;
+                test.onEvent(wEvent);
+                break;
 
             case OGL_WINDOW_KEY_UP:
     //            std::cout << "code up: " <<  OGL_WINDOW_KEY_GET_CODE(event) << std::endl;
@@ -313,7 +339,8 @@ int main()
         }
 
         glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(177/256.0f, 98/256.0f, 107/256.0f, 1.0f);
+        //glClearColor(177/256.0f, 98/256.0f, 107/256.0f, 1.0f);
+        glClearColor(0.2, 0.2, .2, 1.0f);
         wEvent.type = OGL_WIDGET_DRAW;
         test.onEvent(wEvent);
         glXSwapBuffers(display, glxWindow);
