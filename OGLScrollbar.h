@@ -14,8 +14,7 @@ private:
     int mLastYClick;
     float mCurrentValue;
     float mMaxRangeValue;
-    bool changeBarPosition(float targetYValue);
-    void updateCurrentValue();
+    bool updateBarStatus(float targetYValue);
     bool inToRect(int x, int y, int xLeftRect, int yTopRect, int xRightRect, int yBottomRect);
     void drawBar();
 
