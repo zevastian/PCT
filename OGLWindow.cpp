@@ -74,6 +74,8 @@ OGLWindow::OGLWindow(OGLWindowDescription description)
     /******************************************************************************/
     mColormap = XCreateColormap(mDisplay, DefaultRootWindow(mDisplay), visual->visual, AllocNone);
 
+    //HAY QUE REVISAR PORQUE backing_store GENERA "ARTEFACTOS"
+    //EN LA PANTALLA
     XSetWindowAttributes wndAttr;
     wndAttr.border_pixel = 0;
     wndAttr.backing_store = Always;
