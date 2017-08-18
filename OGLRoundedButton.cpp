@@ -97,9 +97,9 @@ void OGLRoundedButton::draw()
     //std::ceil(2.0f*sqrt(radius)*(arc/PI)
     int steps = std::ceil(sqrt(mRadius));
 
-    #define PI 3.141592654f
-    #define PI_DIV_2 1.570796327f
-    #define PI_DIV_4 0.785398163f
+#define PI 3.141592654f
+#define PI_DIV_2 1.570796327f
+#define PI_DIV_4 0.785398163f
 
     //CORNER SUPERIOR DERECHO
     drawArc(OGLWidget::mXRight - mRadius, OGLWidget::mYTop + mRadius, 0.0f, PI_DIV_2, steps);
@@ -153,6 +153,13 @@ int OGLRoundedButton::onEvent(OGLWidgetEvent event)
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         //NO ES NECESARIO SOLICITAR UN DRAW
+        break;
+
+    case OGL_WIDGET_REQUEST_EVENT_MASK:
+        ret = OGLWidget::onEvent(event) | OGL_WIDGET_MOUSE_MOVE |
+              OGL_WIDGET_MOUSE_LEAVE | OGL_WIDGET_FOCUS_RELEASE |
+              OGL_WIDGET_MOUSE_CLICK_DOWN | OGL_WIDGET_DRAW |
+              OGL_WIDGET_SIZE;
         break;
     }
 

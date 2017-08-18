@@ -178,6 +178,14 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
         }
         break;
 
+    case OGL_WIDGET_REQUEST_EVENT_MASK:
+        ret = OGLWidget::onEvent(event) | OGL_WIDGET_MOUSE_MOVE |
+              OGL_WIDGET_ANIMATE | OGL_WIDGET_DRAW | OGL_WIDGET_MOUSE_CLICK_DOWN |
+              OGL_WIDGET_MOUSE_CLICK_UP | OGL_WIDGET_MOUSE_WHEEL |
+              OGL_WIDGET_MOUSE_LEAVE | OGL_WIDGET_FOCUS_RELEASE |
+              OGL_WIDGET_SIZE;
+        break;
+
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         //EN UN EVENTO SIZE NO ES NECESARIO NOTIFICAR

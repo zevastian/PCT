@@ -26,8 +26,10 @@ int OGLImage::onEvent(OGLWidgetEvent event)
     float height = OGLWidget::mYBottom - OGLWidget::mYTop;
     float prop2 = height*mDescription.texture.width;
 
-    if (event.type == OGL_WIDGET_SIZE) {
+    int ret = OGL_WIDGET_RET_NONE;
+    switch (event.type) {
 
+    case OGL_WIDGET_SIZE:
         switch (mDescription.image.scale) {
         case OGL_IMAGE_ADJUST:
             if (prop1 > prop2) {
@@ -65,11 +67,14 @@ int OGLImage::onEvent(OGLWidgetEvent event)
             mImageHeight = height;
             break;
         }
-    } else if (event.type == OGL_WIDGET_DRAW) {
+        break;
+
+    case OGL_WIDGET_DRAW:
         //ESTO LUEGO DEBERIA TENER UNA IMPLEMENTACION
         //INDEPENDIENTE DE LA PLATAFORMA
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, mDescription.texture.texture);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         glBegin(GL_QUADS);
 
         /*left-top*/
@@ -87,6 +92,13 @@ int OGLImage::onEvent(OGLWidgetEvent event)
 
         glEnd();
         glDisable(GL_TEXTURE_2D);
+        break;
+
+    case OGL_WIDGET_REQUEST_EVENT_MASK:
+        ret = OGLWidget::onEvent(event) | OGL_WIDGET_SIZE |
+              OGL_WIDGET_DRAW;
+        break;
     }
-    return OGL_WIDGET_RET_NONE;
+
+    return ret;
 }

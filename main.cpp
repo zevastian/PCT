@@ -2,13 +2,19 @@
 #include"OGLWindow.h"
 #include"OGLWidget.h"
 #include"OGLImage.h"
+#include"OGLButton.h"
+#include"OGLRoundedButton.h"
+#include"OGLLabel.h"
+#include"OGLScrollbar.h"
+#include"OGLContainer.h"
+#include"OGLUtils.h"
 #include<string>
 #include<jpeglib.h>
 #include<setjmp.h>
 #include<vector>
 #include<stdexcept>
 #include<fstream>
-#include"OGLScrollbar.h"
+
 
 /*********************************************************************************************/
 struct jpeg_error {
@@ -18,42 +24,6 @@ struct jpeg_error {
 typedef struct jpeg_error *jpeg_error_ptr;
 /*********************************************************************************************/
 
-Display* openDisplay()
-{
-    return XOpenDisplay(NULL);
-}
-
-unsigned int desktopWidth()
-{
-    Display *display = openDisplay();
-    int width = DefaultScreenOfDisplay(display)->width;
-    XCloseDisplay(display);
-    return width;
-}
-
-unsigned int desktopHeight()
-{
-    Display *display = openDisplay();
-    int height = DefaultScreenOfDisplay(display)->height;
-    XCloseDisplay(display);
-    return height;
-}
-
-unsigned int screenWidth()
-{
-    Display *display = openDisplay();
-    int width = DefaultScreenOfDisplay(display)->width;
-    XCloseDisplay(display);
-    return width;
-}
-
-unsigned int screenHeight()
-{
-    Display *display = openDisplay();
-    int height = DefaultScreenOfDisplay(display)->height;
-    XCloseDisplay(display);
-    return height;
-}
 //
 //void getNetWMState(unsigned char*& properties)
 //{
@@ -165,22 +135,24 @@ bool loadTexture(GLuint &texture, unsigned int &width, unsigned int& height, std
     return true;
 }
 
+void clickHello() {
+    std::cout << "hola" << std::endl;
+}
+
 int main()
 {
     OGLWindowDescription desc;
     desc.title = "PopcornTime++";
-    desc.width = screenWidth()*0.85f;
-    desc.minWidth = screenWidth()*0.45f;
-    desc.maxWidth = screenWidth();
-    desc.height = screenHeight()*0.85f;
-    desc.minHeight = screenHeight()*0.45f;
-    desc.maxHeight = screenHeight();
-    desc.x = 0.5f*(desktopWidth() - desc.width);
-    desc.y = 0.5f*(desktopHeight() - desc.height);
+    desc.width = utils::getScreenWidth()*0.85f;
+    desc.minWidth = utils::getScreenWidth()*0.45f;
+    desc.maxWidth = utils::getScreenWidth();
+    desc.height = utils::getScreenHeight()*0.85f;
+    desc.minHeight = utils::getScreenHeight()*0.45f;
+    desc.maxHeight = utils::getScreenHeight();
+    desc.x = 0.5f*(utils::getDesktopWidth() - desc.width);
+    desc.y = 0.5f*(utils::getDesktopHeight() - desc.height);
 
     OGLWindow oglwindow(desc);
-
-
     /**********************************************************************************/
     OGLXWindowHandle glxWindow;
     oglwindow.getNativeGLXWindow(glxWindow);
@@ -188,9 +160,6 @@ int main()
     oglwindow.getNativeDisplay(display);
     OGLFBConfig fbc;
     oglwindow.getNativeFBConfig(fbc);
-
-
-    /**********************************************************************************/
     GLXContext context = NULL;
     context = glXCreateNewContext(display, fbc, GLX_RGBA_TYPE, 0, True);
     if (!context) {
@@ -198,42 +167,92 @@ int main()
         return -1;
     }
     glXMakeContextCurrent(display, glxWindow, glxWindow, context);
-    /**********************************************************************************/
     bool redraw = false;
     /**********************************************************************************/
     OGLWidgetDescription descWidget;
-    descWidget.x.value = 10.0f;
-    descWidget.x.flag = OGLWidgetXFlag::OGL_ALIGN_RIGHT;
-    descWidget.y.value = 10.0f;
+    descWidget.x.flag = OGLWidgetXFlag::OGL_ALIGN_LEFT;
     descWidget.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
 
-    descWidget.width.value = 6.0f;
-    descWidget.width.flag = OGLWidgetDimensionFlag::OGL_PX;
+    descWidget.width.value = 100.0f;
+    descWidget.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
     descWidget.height.value = 100.0f;
     descWidget.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
 
-//    OGLImageDescription descImage;
-//    descImage.widget = descWidget;
-//    descImage.image.scale = OGL_IMAGE_FILL;
-//
-//    std::ifstream stream("img.jpg", std::ios::in | std::ios::binary);
-//    std::vector<char> buffer((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-//    loadTexture(descImage.texture.texture, descImage.texture.width, descImage.texture.height, buffer);
-//
-//    /**********************************************************************************/
-//
-//    OGLImage test(descImage);
+    OGLContainer mainWidget(descWidget);
+    /**********************************************************************************/
+    OGLWidgetDescription descWidgetImage;
+    descWidgetImage.x.flag = OGLWidgetXFlag::OGL_ALIGN_LEFT;
+    descWidgetImage.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
 
-    OGLScrollbar test(descWidget);
-    test.setMaxRange(10000);
-    test.setValue(0);
+    descWidgetImage.width.value = 100.0f;
+    descWidgetImage.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+    descWidgetImage.height.value = 100.0f;
+    descWidgetImage.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+
+    OGLImageDescription descImage;
+    descImage.widget = descWidgetImage;
+    descImage.image.scale = OGL_IMAGE_FILL;
+
+    std::ifstream stream("img.jpg", std::ios::in | std::ios::binary);
+    std::vector<char> buffer((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    loadTexture(descImage.texture.texture, descImage.texture.width, descImage.texture.height, buffer);
+    std::shared_ptr<OGLIWidget> img1(new OGLImage(descImage));
+    mainWidget.add(img1);
+    /**********************************************************************************/
+
+    OGLRoundedButtonDescription descButton;
+    descButton.widget.x.value = 10.0f;
+    descButton.widget.x.flag = OGLWidgetXFlag::OGL_RELATIVE_LEFT;
+    descButton.widget.y.value = 10.0f;
+    descButton.widget.y.flag = OGLWidgetYFlag::OGL_RELATIVE_BOTTOM;
+
+    descButton.widget.width.value = 128.0f;
+    descButton.widget.width.flag = OGLWidgetDimensionFlag::OGL_PX;
+    descButton.widget.height.value = 48.0f;
+    descButton.widget.height.flag = OGLWidgetDimensionFlag::OGL_PX;
+
+    descButton.button.onClick = clickHello;
+    descButton.button.radius = 6.0f;
+    std::shared_ptr<OGLIWidget> btn1 (new OGLRoundedButton(descButton));
+    mainWidget.add(btn1);
+    /**********************************************************************************/
+    OGLWidgetDescription descCont2;
+    descCont2.x.flag = OGLWidgetXFlag::OGL_ALIGN_LEFT;
+    descCont2.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
+
+    descCont2.width.value = 33.3f;
+    descCont2.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+    descCont2.height.value = 100.0f;
+    descCont2.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+
+    std::shared_ptr<OGLContainer> labelContainer(new OGLContainer(descCont2));
+    /**********************************************************************************/
+
+    OGLLabelDescription descLabel;
+    descLabel.widget.x.flag = OGLWidgetXFlag::OGL_ALIGN_CENTER_X;
+    descLabel.widget.y.flag = OGLWidgetYFlag::OGL_ALIGN_CENTER_Y;
+
+    descLabel.widget.width.value = 80.0f;
+    descLabel.widget.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+    descLabel.widget.height.value = 70.0f;
+    descLabel.widget.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+
+    descLabel.text.font = "Font/Roboto-Medium.ttf";
+    descLabel.text.size = 16;
+    descLabel.text.str = "In the near future, Major Motoko Kusanagi (Scarlett Johansson) is the first of her kind: A human saved from a terrible terrorist attack, who is cyber-enhanced to be a perfect soldier devoted to stopping the world's most dangerous criminals. When terrorism reaches a new level that includes the ability to hack into people's minds and control them, Major Kusanagi is uniquely qualified to stop it. As she prepares to face a new enemy, Major Kusanagi discovers that she has been lied to: her life was not saved, it was stolen. She will stop at nothing to recover her past, find out who did this to her and stop them before they do it to others. ";
+
+    std::shared_ptr<OGLIWidget> lbl1(new OGLLabel(descLabel));
+    labelContainer->add(lbl1);
+    //PORQUE AFECTA LLAMARLO ANTES Y NO DESPUES DE AGREGARLE
+    //EL LABEL?
+    mainWidget.add(labelContainer);
+    /**********************************************************************************/
 
     OGLWidgetEvent wEvent;
     wEvent.type = OGL_WIDGET_MOVE;
     wEvent.data.move.x = 0.0f;
     wEvent.data.move.y = 0.0f;
-    test.onEvent(wEvent);
-
+    mainWidget.onEvent(wEvent);
     oglwindow.show();
     OGLWindowEvent event;
     while (true) {
@@ -255,7 +274,7 @@ int main()
                 wEvent.type = OGL_WIDGET_SIZE;
                 wEvent.data.size.width = OGL_WINDOW_SIZE_GET_WIDTH(event);
                 wEvent.data.size.height = OGL_WINDOW_SIZE_GET_HEIGHT(event);
-                test.onEvent(wEvent);
+                mainWidget.onEvent(wEvent);
                 redraw = true;
                 break;
 
@@ -268,7 +287,8 @@ int main()
                 wEvent.type = OGL_WIDGET_MOUSE_MOVE;
                 wEvent.data.mouse.x = OGL_WINDOW_MOUSE_GET_X(event);
                 wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
-                test.onEvent(wEvent);
+                mainWidget.onEvent(wEvent);
+                redraw = true;
                 //std::cout << "x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
                 break;
 
@@ -276,7 +296,8 @@ int main()
                 wEvent.type = OGL_WIDGET_MOUSE_WHEEL;
                 wEvent.data.mouse.delta = OGL_WINDOW_MOUSE_GET_DELTA(event);
                 //wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
-                test.onEvent(wEvent);
+                mainWidget.onEvent(wEvent);
+                redraw = true;
                 //std::cout << "delta: " << std::to_string(OGL_WINDOW_MOUSE_GET_DELTA(event)) << std::endl;
                 break;
 
@@ -284,7 +305,8 @@ int main()
                 wEvent.type = OGL_WIDGET_MOUSE_CLICK_UP;
                 wEvent.data.mouse.x = OGL_WINDOW_MOUSE_GET_X(event);
                 wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
-                test.onEvent(wEvent);
+                mainWidget.onEvent(wEvent);
+                redraw = true;
                 //std::cout << "click up en x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
                 break;
 
@@ -292,28 +314,34 @@ int main()
                 wEvent.type = OGL_WIDGET_MOUSE_CLICK_DOWN;
                 wEvent.data.mouse.x = OGL_WINDOW_MOUSE_GET_X(event);
                 wEvent.data.mouse.y = OGL_WINDOW_MOUSE_GET_Y(event);
-                test.onEvent(wEvent);
+                mainWidget.onEvent(wEvent);
+                redraw = true;
                 //std::cout << "click down en x: " << OGL_WINDOW_MOUSE_GET_X(event) << " y: " << OGL_WINDOW_MOUSE_GET_Y(event) << std::endl;
                 break;
 
             case OGL_WINDOW_FOCUS_SET:
-                std::cout << "focus set" << std::endl;
+                //std::cout << "focus set" << std::endl;
                 break;
 
             case OGL_WINDOW_FOCUS_RELEASE:
                 wEvent.type = OGL_WIDGET_FOCUS_RELEASE;
-                test.onEvent(wEvent);
+                mainWidget.onEvent(wEvent);
+                redraw = true;
                 //std::cout << "focus release" << std::endl;
                 break;
 
             case OGL_WINDOW_MOUSE_ENTER:
-                std::cout << "enter" << std::endl;
+                //std::cout << "enter" << std::endl;
+                wEvent.type = OGL_WIDGET_MOUSE_ENTER;
+                mainWidget.onEvent(wEvent);
+                redraw = true;
                 break;
 
             case OGL_WINDOW_MOUSE_LEAVE:
-                std::cout << "leave" << std::endl;
+                //std::cout << "leave" << std::endl;
                 wEvent.type = OGL_WIDGET_MOUSE_LEAVE;
-                test.onEvent(wEvent);
+                mainWidget.onEvent(wEvent);
+                redraw = true;
                 break;
 
             case OGL_WINDOW_KEY_UP:
@@ -338,11 +366,12 @@ int main()
 
         }
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        //glClearColor(177/256.0f, 98/256.0f, 107/256.0f, 1.0f);
-        glClearColor(0.2, 0.2, .2, 1.0f);
-        wEvent.type = OGL_WIDGET_DRAW;
-        test.onEvent(wEvent);
+//        glClear(GL_COLOR_BUFFER_BIT);
+//        glClearColor(177/256.0f, 98/256.0f, 107/256.0f, 1.0f);
+//        glClearColor(0.2, 0.2, .2, 1.0f);
+        OGLWidgetEvent ev;
+        ev.type = OGL_WIDGET_DRAW;
+        mainWidget.onEvent(ev);
         glXSwapBuffers(display, glxWindow);
         redraw = false;
     }

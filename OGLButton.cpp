@@ -2,6 +2,8 @@
 #include"OGLButton.h"
 #include"OGLUtils.h"
 
+//SE PODRIA HACER UN WIDGET CLICKLEABLE GENERICO
+//QUE COMPARTEN TODOS LOS TIPOS DE BOTONES
 OGLButton::OGLButton(OGLButtonDescription description) : OGLWidget(description.widget)
 {
     //FALTA CHEQUEAR CAMPOS
@@ -74,6 +76,13 @@ int OGLButton::onEvent(OGLWidgetEvent event)
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         //NO ES NECESARIO SOLICITAR UN DRAW
+        break;
+
+    case OGL_WIDGET_REQUEST_EVENT_MASK:
+        ret = OGLWidget::onEvent(event) | OGL_WIDGET_MOUSE_MOVE |
+              OGL_WIDGET_MOUSE_LEAVE | OGL_WIDGET_FOCUS_RELEASE |
+              OGL_WIDGET_MOUSE_CLICK_DOWN | OGL_WIDGET_DRAW |
+              OGL_WIDGET_SIZE;
         break;
     }
 

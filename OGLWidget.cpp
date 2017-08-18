@@ -41,14 +41,18 @@ OGLWidget::~OGLWidget()
 
 int OGLWidget::onEvent(OGLWidgetEvent event)
 {
-    if (event.type == OGL_WIDGET_MOVE) {
+    int ret = OGL_WIDGET_RET_NONE;
+    switch (event.type) {
+
+    case OGL_WIDGET_MOVE:
         //TODO OGL_WIDGET_MOVE PRECEDE A UN OGL_WIDGET_SIZE
         //CON TOTAL INDEPENDENCIA DE SI CAMBIO O NO
         //EL TAMAÑO DEL WIDGET PARENT
         mXParent = OGL_WIDGET_MOVE_GET_X(event);
         mYParent = OGL_WIDGET_MOVE_GET_Y(event);
+        break;
 
-    } else if (event.type == OGL_WIDGET_SIZE) {
+    case OGL_WIDGET_SIZE:
         if (mDescription.width.flag == OGL_PX) {
 
             if (mDescription.x.flag == OGL_RELATIVE_RIGHT) {
@@ -92,6 +96,12 @@ int OGLWidget::onEvent(OGLWidgetEvent event)
                 mYTop = OGL_WIDGET_SIZE_GET_HEIGHT(event)*(0.5f - 0.005f*mDescription.height.value);
             }
         }
+        break;
+
+    case OGL_WIDGET_REQUEST_EVENT_MASK:
+        ret = OGL_WIDGET_MOVE | OGL_WIDGET_SIZE;
+        break;
     }
-    return OGL_WIDGET_RET_NONE;
+
+    return ret;
 }

@@ -136,6 +136,7 @@ void OGLLabel::drawText()
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
         for (unsigned int i = 0; i < word.length(); i++) {
             glyph = mGlyphMap[word[i]];
@@ -165,6 +166,7 @@ void OGLLabel::drawText()
 
 int OGLLabel::onEvent(OGLWidgetEvent event)
 {
+    int ret = OGL_WIDGET_RET_NONE;
     switch (event.type) {
 
     case OGL_WIDGET_SIZE:
@@ -175,7 +177,12 @@ int OGLLabel::onEvent(OGLWidgetEvent event)
     case OGL_WIDGET_DRAW:
         drawText();
         break;
+
+    case OGL_WIDGET_REQUEST_EVENT_MASK:
+        ret = OGLWidget::onEvent(event) | OGL_WIDGET_SIZE |
+              OGL_WIDGET_DRAW;
+        break;
     }
 
-    return OGL_WIDGET_RET_NONE;
+    return ret;
 }
