@@ -17,6 +17,7 @@ int OGLSquare::onEvent(OGLWidgetEvent event)
     int ret = OGL_WIDGET_RET_NONE;
     switch (event.type) {
 
+    case OGL_WIDGET_MOVE:
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         break;
@@ -30,10 +31,10 @@ int OGLSquare::onEvent(OGLWidgetEvent event)
                   mDescription.color.a);
 
         glBegin(GL_QUADS);
-        glVertex2f(OGLWidget::mXLeft, OGLWidget::mYTop);
-        glVertex2f(OGLWidget::mXRight, OGLWidget::mYTop);
-        glVertex2f(OGLWidget::mXRight, OGLWidget::mYBottom);
-        glVertex2f(OGLWidget::mXLeft, OGLWidget::mYBottom);
+        glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYTop());
+        glVertex2f(OGLWidget::getXRight(), OGLWidget::getYTop());
+        glVertex2f(OGLWidget::getXRight(), OGLWidget::getYBottom());
+        glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYBottom());
         glEnd();
 
         glDisable(GL_BLEND);

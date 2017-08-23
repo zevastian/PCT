@@ -14,7 +14,7 @@ OGLScrollbar::~OGLScrollbar()
 
 bool OGLScrollbar::updateBarStatus(float targetYValue)
 {
-    float widgetHeight = OGLWidget::mYBottom - OGLWidget::mYTop;
+    float widgetHeight = OGLWidget::getYBottom() - OGLWidget::getYTop();
     float maxValue = widgetHeight - mBarHeight;
 
     if (targetYValue > maxValue) {
@@ -38,10 +38,10 @@ void OGLScrollbar::drawBar()
     glBegin(GL_QUADS);
     glColor3f(0.887f, 0.878f, 0.867f);
 
-    glVertex2f(OGLWidget::mXLeft, OGLWidget::mYTop);
-    glVertex2f(OGLWidget::mXRight, OGLWidget::mYTop);
-    glVertex2f(OGLWidget::mXRight, OGLWidget::mYBottom);
-    glVertex2f(OGLWidget::mXLeft, OGLWidget::mYBottom);
+    glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYTop());
+    glVertex2f(OGLWidget::getXRight(), OGLWidget::getYTop());
+    glVertex2f(OGLWidget::getXRight(), OGLWidget::getYBottom());
+    glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYBottom());
 
     if (!mBarDisable) {
         if (!mBarHover && !mBarPressed) {
@@ -49,10 +49,10 @@ void OGLScrollbar::drawBar()
         } else {
             glColor3f(0.929f, 0.463f, 0.302f);
         }
-        glVertex2f(OGLWidget::mXLeft, OGLWidget::mYTop + mBarY);
-        glVertex2f(OGLWidget::mXRight, OGLWidget::mYTop + mBarY);
-        glVertex2f(OGLWidget::mXRight, OGLWidget::mYTop + mBarY + mBarHeight);
-        glVertex2f(OGLWidget::mXLeft, OGLWidget::mYTop + mBarY + mBarHeight);
+        glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYTop() + mBarY);
+        glVertex2f(OGLWidget::getXRight(), OGLWidget::getYTop() + mBarY);
+        glVertex2f(OGLWidget::getXRight(), OGLWidget::getYTop() + mBarY + mBarHeight);
+        glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYTop() + mBarY + mBarHeight);
     }
 
     glEnd();
@@ -85,13 +85,13 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
     case OGL_WIDGET_MOUSE_MOVE:
         if (!mBarDisable) {
             if (mBarPressed) {
-                if (updateBarStatus(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - mLastYClick)) {
+                if (updateBarStatus(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::getYTop() - mLastYClick)) {
                     ret |= OGL_WIDGET_RET_DRAW;
                 }
             }
             if (utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                                OGLWidget::mXLeft, OGLWidget::mYTop + mBarY,
-                                OGLWidget::mXRight, OGLWidget::mYTop + mBarY + mBarHeight)) {
+                                OGLWidget::getXLeft(), OGLWidget::getYTop() + mBarY,
+                                OGLWidget::getXRight(), OGLWidget::getYTop() + mBarY + mBarHeight)) {
 
                 if (!mBarHover) {
                     mBarHover = true;
@@ -119,24 +119,24 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
 
     case OGL_WIDGET_MOUSE_CLICK_DOWN:
         if (!mBarDisable) {
-            float barWidth = OGLWidget::mXRight - OGLWidget::mXLeft;
-            float barXCenter = OGLWidget::mXLeft + 0.5f*barWidth;
+            float barWidth = OGLWidget::getXRight() - OGLWidget::getXLeft();
+            float barXCenter = OGLWidget::getXLeft() + 0.5f*barWidth;
             if (utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                                barXCenter - SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYTop,
-                                barXCenter + SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYBottom)) {
+                                barXCenter - SCROLL_WIDTH_MULT*barWidth, OGLWidget::getYTop(),
+                                barXCenter + SCROLL_WIDTH_MULT*barWidth, OGLWidget::getYBottom())) {
 
                 mBarPressed = true;
                 ret |= OGL_WIDGET_RET_FOCUS_GET;
                 if (!utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                                     barXCenter - SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYTop + mBarY,
-                                     barXCenter + SCROLL_WIDTH_MULT*barWidth, OGLWidget::mYTop + mBarY + mBarHeight)) {
+                                     barXCenter - SCROLL_WIDTH_MULT*barWidth, OGLWidget::getYTop() + mBarY,
+                                     barXCenter + SCROLL_WIDTH_MULT*barWidth, OGLWidget::getYTop() + mBarY + mBarHeight)) {
 
-                    if (updateBarStatus(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - 0.5f*mBarHeight)) {
+                    if (updateBarStatus(OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::getYTop() - 0.5f*mBarHeight)) {
                         mBarHover = true;
                         ret |= OGL_WIDGET_RET_DRAW;
                     }
                 }
-                mLastYClick = OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::mYTop - mBarY;
+                mLastYClick = OGL_WIDGET_MOUSE_GET_Y(event) - OGLWidget::getYTop() - mBarY;
             }
         }
         break;
@@ -155,7 +155,7 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
 
     case OGL_WIDGET_MOUSE_WHEEL:
         if (!mBarPressed && !mBarDisable) {
-            float maxOffset = ((OGLWidget::mYBottom - OGLWidget::mYTop) - mBarHeight)/mMaxRangeValue;
+            float maxOffset = ((OGLWidget::getYBottom() - OGLWidget::getYTop()) - mBarHeight)/mMaxRangeValue;
             if (updateBarStatus(mBarY - (OGL_WIDGET_MOUSE_GET_DELTA(event)*SCROLL_ADVANCE*maxOffset))) {
                 ret |= OGL_WIDGET_RET_DRAW;
             }
@@ -186,6 +186,10 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
               OGL_WIDGET_SIZE;
         break;
 
+    case OGL_WIDGET_MOVE:
+        OGLWidget::onEvent(event);
+        break;
+
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         //EN UN EVENTO SIZE NO ES NECESARIO NOTIFICAR
@@ -196,7 +200,7 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
             ret |= OGL_WIDGET_RET_FOCUS_RELEASE;
         }
 
-        float widgetHeight = OGLWidget::mYBottom - OGLWidget::mYTop;
+        float widgetHeight = OGLWidget::getYBottom() - OGLWidget::getYTop();
         mBarHeight = (widgetHeight*widgetHeight)/mMaxRangeValue;
         if (mBarHeight >= widgetHeight) {
             mBarHeight = widgetHeight;

@@ -22,8 +22,8 @@ int OGLButton::onEvent(OGLWidgetEvent event)
     switch (event.type) {
     case OGL_WIDGET_MOUSE_MOVE:
         if (utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                            OGLWidget::mXLeft, OGLWidget::mYTop,
-                            OGLWidget::mXRight, OGLWidget::mYBottom)) {
+                            OGLWidget::getXLeft(), OGLWidget::getYTop(),
+                            OGLWidget::getXRight(), OGLWidget::getYBottom())) {
 
             if (!mHover) {
                 mHover = true;
@@ -47,8 +47,8 @@ int OGLButton::onEvent(OGLWidgetEvent event)
 
     case OGL_WIDGET_MOUSE_CLICK_DOWN:
         if (utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                            OGLWidget::mXLeft, OGLWidget::mYTop,
-                            OGLWidget::mXRight, OGLWidget::mYBottom)) {
+                            OGLWidget::getXLeft(), OGLWidget::getYTop(),
+                            OGLWidget::getXRight(), OGLWidget::getYBottom())) {
 
             onClick();
             mHover = true;
@@ -57,6 +57,8 @@ int OGLButton::onEvent(OGLWidgetEvent event)
         break;
 
     case OGL_WIDGET_DRAW:
+        //TAL VEZ EN VEZ DE CAMBIAR EL COLOR DEL BOTON
+        //CONVIENE CAMBIAR EL MOUSE
         //ESTO LUEGO TENDRA UNA IMPLEMENTACION
         //INDEPENDIENTE DE LA PLATAFORMA
         if (!mHover) {
@@ -66,13 +68,14 @@ int OGLButton::onEvent(OGLWidgetEvent event)
         }
 
         glBegin(GL_QUADS);
-        glVertex2f(OGLWidget::mXLeft, OGLWidget::mYTop);
-        glVertex2f(OGLWidget::mXRight, OGLWidget::mYTop);
-        glVertex2f(OGLWidget::mXRight, OGLWidget::mYBottom);
-        glVertex2f(OGLWidget::mXLeft, OGLWidget::mYBottom);
+        glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYTop());
+        glVertex2f(OGLWidget::getXRight(), OGLWidget::getYTop());
+        glVertex2f(OGLWidget::getXRight(), OGLWidget::getYBottom());
+        glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYBottom());
         glEnd();
         break;
 
+    case OGL_WIDGET_MOVE:
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         //NO ES NECESARIO SOLICITAR UN DRAW

@@ -105,3 +105,23 @@ int OGLWidget::onEvent(OGLWidgetEvent event)
 
     return ret;
 }
+
+float OGLWidget::getXLeft()
+{
+    return mXLeft + mXParent;
+}
+
+float OGLWidget::getXRight()
+{
+    return mXRight + mXParent;
+}
+
+float OGLWidget::getYTop()
+{
+    return mYTop + mYParent;
+}
+
+float OGLWidget::getYBottom()
+{
+    return mYBottom + mYParent;
+}

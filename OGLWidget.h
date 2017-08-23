@@ -60,7 +60,7 @@ struct OGLWidgetDescription {
 
 class OGLWidget : public OGLIWidget
 {
-protected:
+private:
     float mXParent;
     float mYParent;
     float mXLeft;
@@ -68,6 +68,12 @@ protected:
     float mYTop;
     float mYBottom;
     OGLWidgetDescription mDescription;
+
+protected:
+    float getXLeft();
+    float getXRight();
+    float getYTop();
+    float getYBottom();
 
 public:
     /**/

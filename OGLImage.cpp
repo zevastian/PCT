@@ -21,9 +21,9 @@ OGLImage::~OGLImage()
 int OGLImage::onEvent(OGLWidgetEvent event)
 {
     OGLWidget::onEvent(event);
-    float width = OGLWidget::mXRight - OGLWidget::mXLeft;
+    float width = OGLWidget::getXRight() - OGLWidget::getXLeft();
     float prop1 = width*mDescription.texture.height;
-    float height = OGLWidget::mYBottom - OGLWidget::mYTop;
+    float height = OGLWidget::getYBottom() - OGLWidget::getYTop();
     float prop2 = height*mDescription.texture.width;
 
     int ret = OGL_WIDGET_RET_NONE;
@@ -34,14 +34,14 @@ int OGLImage::onEvent(OGLWidgetEvent event)
         case OGL_IMAGE_ADJUST:
             if (prop1 > prop2) {
                 mImageWidth = prop2/mDescription.texture.height;
-                mImageX = OGLWidget::mXLeft + 0.5f*(width - mImageWidth);
-                mImageY = OGLWidget::mYTop;
+                mImageX = OGLWidget::getXLeft() + 0.5f*(width - mImageWidth);
+                mImageY = OGLWidget::getYTop();
                 mImageHeight = height;
             } else {
-                mImageX = OGLWidget::mXLeft;
+                mImageX = OGLWidget::getXLeft();
                 mImageWidth = width;
                 mImageHeight = prop1/mDescription.texture.width;
-                mImageY = OGLWidget::mYTop + 0.5f*(height - mImageHeight);
+                mImageY = OGLWidget::getYTop() + 0.5f*(height - mImageHeight);
             }
             break;
 
@@ -61,12 +61,16 @@ int OGLImage::onEvent(OGLWidgetEvent event)
             }
 
         case OGL_IMAGE_STRETCH:
-            mImageX = OGLWidget::mXLeft;
+            mImageX = OGLWidget::getXLeft();
             mImageWidth = width;
-            mImageY = OGLWidget::mYTop;
+            mImageY = OGLWidget::getYTop();
             mImageHeight = height;
             break;
         }
+        break;
+
+    case OGL_WIDGET_MOVE:
+        OGLWidget::onEvent(event);
         break;
 
     case OGL_WIDGET_DRAW:

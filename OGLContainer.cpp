@@ -17,19 +17,19 @@ int OGLContainer::onEvent(OGLWidgetEvent event)
 
     switch (event.type) {
     case OGL_WIDGET_SIZE:
-        lastXLeft = OGLWidget::mXLeft;
-        lastYTop = OGLWidget::mYTop;
+        lastXLeft = OGLWidget::getXLeft();
+        lastYTop = OGLWidget::getYTop();
         OGLWidget::onEvent(event);
-        event.data.size.width = OGLWidget::mXRight - OGLWidget::mXLeft;
-        event.data.size.height = OGLWidget::mYBottom - OGLWidget::mYTop;
-        if (lastXLeft != OGLWidget::mXLeft || lastYTop != OGLWidget::mYTop) {
+        event.data.size.width = OGLWidget::getXRight() - OGLWidget::getXLeft();
+        event.data.size.height = OGLWidget::getYBottom() - OGLWidget::getYTop();
+        if (lastXLeft != OGLWidget::getXLeft() || lastYTop != OGLWidget::getYTop()) {
 
             OGLWidgetEvent ev;
             ev.type = OGL_WIDGET_MOVE;
-            ev.data.move.x = OGLWidget::mXLeft;
-            ev.data.move.y = OGLWidget::mYTop;
+            ev.data.move.x = OGLWidget::getXLeft();
+            ev.data.move.y = OGLWidget::getYTop();
             for (auto it = mChildrens.begin(); it != mChildrens.end(); it++) {
-                if (it->eventMask == ev.type) {
+                if (it->eventMask & ev.type) {
                     it->widget->onEvent(ev);
                 }
             }
@@ -44,8 +44,8 @@ int OGLContainer::onEvent(OGLWidgetEvent event)
     case OGL_WIDGET_MOUSE_CLICK_UP:
     case OGL_WIDGET_MOUSE_CLICK_DOWN:
     case OGL_WIDGET_MOUSE_WHEEL:
-        event.data.mouse.x += OGLWidget::mXLeft;
-        event.data.mouse.y += OGLWidget::mYTop;
+        event.data.mouse.x += OGLWidget::getXLeft();
+        event.data.mouse.y += OGLWidget::getYTop();
         break;
 
     case OGL_WIDGET_REQUEST_EVENT_MASK:

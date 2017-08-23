@@ -100,10 +100,10 @@ void OGLLabel::drawText()
         float top;
         float buttom;
     } rect;
-    rect.left = OGLWidget::mXLeft;
-    rect.right = OGLWidget::mXRight;
-    rect.top = OGLWidget::mYTop;
-    rect.buttom = OGLWidget::mYBottom;
+    rect.left = OGLWidget::getXLeft();
+    rect.right = OGLWidget::getXRight();
+    rect.top = OGLWidget::getYTop();
+    rect.buttom = OGLWidget::getYBottom();
 
     int left = rect.left;
     while (getWord(mDescription.text.str, indx, word)) {
@@ -169,6 +169,7 @@ int OGLLabel::onEvent(OGLWidgetEvent event)
     int ret = OGL_WIDGET_RET_NONE;
     switch (event.type) {
 
+    case OGL_WIDGET_MOVE:
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         //NO INFORMAR DRAW

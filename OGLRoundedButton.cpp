@@ -19,29 +19,29 @@ bool OGLRoundedButton::overButton(int x, int y)
 {
     //PRIMERO HAGO UNA COMPROBACION BASICA
     if (utils::inToRect(x, y,
-                        OGLWidget::mXLeft, OGLWidget::mYTop,
-                        OGLWidget::mXRight, OGLWidget::mYBottom)) {
+                        OGLWidget::getXLeft(), OGLWidget::getYTop(),
+                        OGLWidget::getXRight(), OGLWidget::getYBottom())) {
         //RECTANGULO DEL CENTRO
-        if (utils::inToRect(x, y,OGLWidget::mXLeft, OGLWidget::mYTop + mRadius,
-                            OGLWidget::mXRight, OGLWidget::mYBottom - mRadius) ||
+        if (utils::inToRect(x, y,OGLWidget::getXLeft(), OGLWidget::getYTop() + mRadius,
+                            OGLWidget::getXRight(), OGLWidget::getYBottom() - mRadius) ||
                 //RECTANGULO SUPERRIOR
-                utils::inToRect(x, y, OGLWidget::mXLeft + mRadius, OGLWidget::mYTop,
-                                OGLWidget::mXRight - mRadius, OGLWidget::mYTop + mRadius) ||
+                utils::inToRect(x, y, OGLWidget::getXLeft() + mRadius, OGLWidget::getYTop(),
+                                OGLWidget::getXRight() - mRadius, OGLWidget::getYTop() + mRadius) ||
                 //RECTANGULO INFERIOR
-                utils::inToRect(x, y, OGLWidget::mXLeft + mRadius, OGLWidget::mYBottom - mRadius,
-                                OGLWidget::mXRight - mRadius, OGLWidget::mYBottom) ||
+                utils::inToRect(x, y, OGLWidget::getXLeft() + mRadius, OGLWidget::getYBottom() - mRadius,
+                                OGLWidget::getXRight() - mRadius, OGLWidget::getYBottom()) ||
                 //CIRCULO SUPERIOR IZQUIERDO
-                utils::inToCircle(x, y, OGLWidget::mXLeft + mRadius,
-                                  OGLWidget::mYTop + mRadius, mRadius) ||
+                utils::inToCircle(x, y, OGLWidget::getXLeft() + mRadius,
+                                  OGLWidget::getYTop() + mRadius, mRadius) ||
                 //CIRCULO INFERIOR IZQUIERDO
-                utils::inToCircle(x, y, OGLWidget::mXLeft + mRadius,
-                                  OGLWidget::mYBottom - mRadius, mRadius) ||
+                utils::inToCircle(x, y, OGLWidget::getXLeft() + mRadius,
+                                  OGLWidget::getYBottom() - mRadius, mRadius) ||
                 //CIRCULO INFERIOR DERECHO
-                utils::inToCircle(x, y, OGLWidget::mXRight - mRadius,
-                                  OGLWidget::mYBottom - mRadius, mRadius) ||
+                utils::inToCircle(x, y, OGLWidget::getXRight() - mRadius,
+                                  OGLWidget::getYBottom() - mRadius, mRadius) ||
                 //CIRCULO SUPERIOR DERECHO
-                utils::inToCircle(x, y, OGLWidget::mXRight - mRadius,
-                                  OGLWidget::mYTop + mRadius, mRadius)) {
+                utils::inToCircle(x, y, OGLWidget::getXRight() - mRadius,
+                                  OGLWidget::getYTop() + mRadius, mRadius)) {
 
             return true;
         }
@@ -67,6 +67,8 @@ void OGLRoundedButton::drawArc(float x, float y, float offset, float arc, int st
 
 void OGLRoundedButton::draw()
 {
+    //TAL VEZ EN VEZ DE CAMBIAR EL COLOR DEL BOTON
+    //CONVIENE CAMBIAR EL MOUSE
     //ESTO TENDRA UNA IMPLEMENTACION INDEPENDIENTE
     //EN UN FUTURO
     if (!mHover) {
@@ -77,20 +79,20 @@ void OGLRoundedButton::draw()
 
     glBegin(GL_QUADS);
     //RECTANGULO DEL CENTRO
-    glVertex2f(OGLWidget::mXLeft, OGLWidget::mYTop + mRadius);
-    glVertex2f(OGLWidget::mXRight, OGLWidget::mYTop + mRadius);
-    glVertex2f(OGLWidget::mXRight, OGLWidget::mYBottom - mRadius);
-    glVertex2f(OGLWidget::mXLeft, OGLWidget::mYBottom - mRadius);
+    glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYTop() + mRadius);
+    glVertex2f(OGLWidget::getXRight(), OGLWidget::getYTop() + mRadius);
+    glVertex2f(OGLWidget::getXRight(), OGLWidget::getYBottom() - mRadius);
+    glVertex2f(OGLWidget::getXLeft(), OGLWidget::getYBottom() - mRadius);
     //RECTANGULO SUPERIOR
-    glVertex2f(OGLWidget::mXLeft + mRadius, OGLWidget::mYTop);
-    glVertex2f(OGLWidget::mXRight - mRadius, OGLWidget::mYTop);
-    glVertex2f(OGLWidget::mXRight - mRadius, OGLWidget::mYTop + mRadius);
-    glVertex2f(OGLWidget::mXLeft + mRadius, OGLWidget::mYTop + mRadius);
+    glVertex2f(OGLWidget::getXLeft() + mRadius, OGLWidget::getYTop());
+    glVertex2f(OGLWidget::getXRight() - mRadius, OGLWidget::getYTop());
+    glVertex2f(OGLWidget::getXRight() - mRadius, OGLWidget::getYTop() + mRadius);
+    glVertex2f(OGLWidget::getXLeft() + mRadius, OGLWidget::getYTop() + mRadius);
     //RECTANGULO INFERIOR
-    glVertex2f(OGLWidget::mXLeft + mRadius, OGLWidget::mYBottom - mRadius);
-    glVertex2f(OGLWidget::mXRight - mRadius, OGLWidget::mYBottom - mRadius);
-    glVertex2f(OGLWidget::mXRight - mRadius, OGLWidget::mYBottom);
-    glVertex2f(OGLWidget::mXLeft + mRadius, OGLWidget::mYBottom);
+    glVertex2f(OGLWidget::getXLeft() + mRadius, OGLWidget::getYBottom() - mRadius);
+    glVertex2f(OGLWidget::getXRight() - mRadius, OGLWidget::getYBottom() - mRadius);
+    glVertex2f(OGLWidget::getXRight() - mRadius, OGLWidget::getYBottom());
+    glVertex2f(OGLWidget::getXLeft() + mRadius, OGLWidget::getYBottom());
     glEnd();
 
     //CALCULO CANTIDAD DE VERTICES
@@ -102,13 +104,13 @@ void OGLRoundedButton::draw()
 #define PI_DIV_4 0.785398163f
 
     //CORNER SUPERIOR DERECHO
-    drawArc(OGLWidget::mXRight - mRadius, OGLWidget::mYTop + mRadius, 0.0f, PI_DIV_2, steps);
+    drawArc(OGLWidget::getXRight() - mRadius, OGLWidget::getYTop() + mRadius, 0.0f, PI_DIV_2, steps);
     //CORNER SUPERIOR IZQUIERDO
-    drawArc(OGLWidget::mXLeft + mRadius, OGLWidget::mYTop + mRadius, PI_DIV_2, PI_DIV_2, steps);
+    drawArc(OGLWidget::getXLeft() + mRadius, OGLWidget::getYTop() + mRadius, PI_DIV_2, PI_DIV_2, steps);
     //CORNER INFERIOR IZQUIERDO
-    drawArc(OGLWidget::mXLeft + mRadius, OGLWidget::mYBottom - mRadius, PI, PI_DIV_2, steps);
+    drawArc(OGLWidget::getXLeft() + mRadius, OGLWidget::getYBottom() - mRadius, PI, PI_DIV_2, steps);
     //CORNER INFERIOR DERECHO
-    drawArc(OGLWidget::mXRight - mRadius, OGLWidget::mYBottom - mRadius, PI + PI_DIV_2, PI_DIV_2, steps);
+    drawArc(OGLWidget::getXRight() - mRadius, OGLWidget::getYBottom() - mRadius, PI + PI_DIV_2, PI_DIV_2, steps);
 }
 
 int OGLRoundedButton::onEvent(OGLWidgetEvent event)
@@ -150,6 +152,7 @@ int OGLRoundedButton::onEvent(OGLWidgetEvent event)
         draw();
         break;
 
+    case OGL_WIDGET_MOVE:
     case OGL_WIDGET_SIZE:
         OGLWidget::onEvent(event);
         //NO ES NECESARIO SOLICITAR UN DRAW
