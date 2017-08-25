@@ -93,7 +93,7 @@ void OGLLabel::drawText()
 {
     std::string word;
     unsigned int indx = 0;
-
+    Glyph glyph;
     struct {
         float left;
         float right;
@@ -104,19 +104,21 @@ void OGLLabel::drawText()
     rect.right = OGLWidget::getXRight();
     rect.top = OGLWidget::getYTop();
     rect.buttom = OGLWidget::getYBottom();
-
     int left = rect.left;
-    while (getWord(mDescription.text.str, indx, word)) {
 
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    while (getWord(mDescription.text.str, indx, word)) {
         int width = 0;
-        Glyph glyph;
         for (unsigned int i = 0; i < word.length(); i++) {
             glyph = mGlyphMap[word[i]];
             if (!glyph.cargado) {
                 loadGlyph(word[i]);
                 glyph = mGlyphMap[word[i]];
             }
-
             width += (glyph.advance >> 6);
         }
 
@@ -124,37 +126,27 @@ void OGLLabel::drawText()
             if (word[0] == ' ') {
                 continue;
             }
-
             rect.top += glyph.advanceY;
             rect.left = left;
         }
-
         if (rect.top > rect.buttom) {
             break;
         }
 
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
         for (unsigned int i = 0; i < word.length(); i++) {
             glyph = mGlyphMap[word[i]];
-            glBindTexture(GL_TEXTURE_2D, glyph.texture);
 
+            glBindTexture(GL_TEXTURE_2D, glyph.texture);
             int X = rect.left + glyph.bearingX;
             int Y = rect.top - glyph.bearingY;
 
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f, 0.0f);
             glVertex2f(X, Y);
-
             glTexCoord2f(0.0f, 1.0f);
             glVertex2f(X, Y + glyph.height);
-
             glTexCoord2f(1.0f, 1.0f);
             glVertex2f(X + glyph.width, Y + glyph.height);
-
             glTexCoord2f(1.0f, 0.0f);
             glVertex2f(X + glyph.width, Y);
             glEnd();
@@ -162,6 +154,8 @@ void OGLLabel::drawText()
             rect.left += (glyph.advance >> 6);
         }
     }
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
 }
 
 int OGLLabel::onEvent(OGLWidgetEvent event)

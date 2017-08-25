@@ -44,8 +44,9 @@ int OGLContainer::onEvent(OGLWidgetEvent event)
     case OGL_WIDGET_MOUSE_CLICK_UP:
     case OGL_WIDGET_MOUSE_CLICK_DOWN:
     case OGL_WIDGET_MOUSE_WHEEL:
-        event.data.mouse.x += OGLWidget::getXLeft();
-        event.data.mouse.y += OGLWidget::getYTop();
+        //YA NO HACE FALTA AJUSTAR LAS COORDENADAS DEL CURSOR
+        //event.data.mouse.x += OGLWidget::getXLeft();
+        //event.data.mouse.y += OGLWidget::getYTop();
         break;
 
     case OGL_WIDGET_REQUEST_EVENT_MASK:

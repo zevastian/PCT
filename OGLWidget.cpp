@@ -1,9 +1,20 @@
 #include"OGLWidget.h"
+#include<cfloat>
 
 OGLWidget::OGLWidget(OGLWidgetDescription description)
 {
     //FALTA CHEQUEAR CAMPOS INCOMPLETOS
     mDescription = description;
+    /******************************************************************************/
+    //NO ME QUEDA CALRO PORQUE ESTO SOLUCIONA EL PROBLEMA
+    //EN EL QUE ALGUNO WIDGET NO SE MUESTRAN
+    mXLeft = FLT_MIN;
+    mXRight = FLT_MIN;
+    mYTop = FLT_MIN;
+    mYBottom = FLT_MIN;
+    mXParent = FLT_MIN;
+    mYParent = FLT_MIN;
+    /******************************************************************************/
 
     if (mDescription.x.flag == OGL_RELATIVE_LEFT) {
         mXLeft = mDescription.x.value;

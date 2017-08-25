@@ -7,6 +7,7 @@
 #include"OGLLabel.h"
 #include"OGLScrollbar.h"
 #include"OGLContainer.h"
+#include"OGLSquare.h"
 #include"OGLUtils.h"
 #include<string>
 #include<jpeglib.h>
@@ -135,7 +136,8 @@ bool loadTexture(GLuint &texture, unsigned int &width, unsigned int& height, std
     return true;
 }
 
-void clickHello() {
+void clickHello()
+{
     std::cout << "hola" << std::endl;
 }
 
@@ -199,35 +201,27 @@ int main()
     std::shared_ptr<OGLIWidget> img1(new OGLImage(descImage));
     mainWidget.add(img1);
     /**********************************************************************************/
-
-    OGLRoundedButtonDescription descButton;
-    descButton.widget.x.value = 10.0f;
-    descButton.widget.x.flag = OGLWidgetXFlag::OGL_RELATIVE_LEFT;
-    descButton.widget.y.value = 10.0f;
-    descButton.widget.y.flag = OGLWidgetYFlag::OGL_RELATIVE_BOTTOM;
-
-    descButton.widget.width.value = 128.0f;
-    descButton.widget.width.flag = OGLWidgetDimensionFlag::OGL_PX;
-    descButton.widget.height.value = 48.0f;
-    descButton.widget.height.flag = OGLWidgetDimensionFlag::OGL_PX;
-
-    descButton.button.onClick = clickHello;
-    descButton.button.radius = 6.0f;
-    std::shared_ptr<OGLIWidget> btn1 (new OGLRoundedButton(descButton));
-    mainWidget.add(btn1);
-    /**********************************************************************************/
     OGLWidgetDescription descCont2;
     descCont2.x.flag = OGLWidgetXFlag::OGL_ALIGN_LEFT;
     descCont2.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
 
-    descCont2.width.value = 33.3f;
+    descCont2.width.value = 33.334f;
     descCont2.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
     descCont2.height.value = 100.0f;
     descCont2.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
 
     std::shared_ptr<OGLContainer> labelContainer(new OGLContainer(descCont2));
     /**********************************************************************************/
+    OGLSquareDescription descSqr;
+    descSqr.widget = descWidget;
+    descSqr.color.r = 0.0f;
+    descSqr.color.g = 0.0f;
+    descSqr.color.b = 0.0f;
+    descSqr.color.a = 0.667f;
 
+    std::shared_ptr<OGLIWidget> sqr1(new OGLSquare(descSqr));
+    labelContainer->add(sqr1);
+    /**********************************************************************************/
     OGLLabelDescription descLabel;
     descLabel.widget.x.flag = OGLWidgetXFlag::OGL_ALIGN_CENTER_X;
     descLabel.widget.y.flag = OGLWidgetYFlag::OGL_ALIGN_CENTER_Y;
@@ -243,11 +237,59 @@ int main()
 
     std::shared_ptr<OGLIWidget> lbl1(new OGLLabel(descLabel));
     labelContainer->add(lbl1);
-    //PORQUE AFECTA LLAMARLO ANTES Y NO DESPUES DE AGREGARLE
-    //EL LABEL?
     mainWidget.add(labelContainer);
     /**********************************************************************************/
+    OGLWidgetDescription descCont3;
+    descCont3.x.flag = OGLWidgetXFlag::OGL_ALIGN_RIGHT;
+    descCont3.y.flag = OGLWidgetYFlag::OGL_ALIGN_TOP;
 
+    descCont3.width.value = 66.667f;
+    descCont3.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+    descCont3.height.value = 100.0f;
+    descCont3.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+
+    std::shared_ptr<OGLContainer> listContainer(new OGLContainer(descCont3));
+    /**********************************************************************************/
+    OGLWidgetDescription descCont4;
+    descCont4.x.flag = OGLWidgetXFlag::OGL_ALIGN_CENTER_X;
+    descCont4.y.flag = OGLWidgetYFlag::OGL_ALIGN_CENTER_Y;
+
+    descCont4.width.value = 85.0f;
+    descCont4.width.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+    descCont4.height.value = 85.0f;
+    descCont4.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
+
+    std::shared_ptr<OGLContainer> listContainer1(new OGLContainer(descCont4));
+    /**********************************************************************************/
+    OGLSquareDescription descSqr2;
+    descSqr2.widget = descWidget;
+    descSqr2.color.r = 0.0f;
+    descSqr2.color.g = 0.0f;
+    descSqr2.color.b = 0.0f;
+    descSqr2.color.a = 0.667f;
+
+    std::shared_ptr<OGLIWidget> sqr2(new OGLSquare(descSqr2));
+    listContainer1->add(sqr2);
+    /**********************************************************************************/
+    OGLRoundedButtonDescription descButton;
+    descButton.widget.x.value = 20.0f;
+    descButton.widget.x.flag = OGLWidgetXFlag::OGL_RELATIVE_RIGHT;
+    descButton.widget.y.value = 20.0f;
+    descButton.widget.y.flag = OGLWidgetYFlag::OGL_RELATIVE_BOTTOM;
+
+    descButton.widget.width.value = 128.0f;
+    descButton.widget.width.flag = OGLWidgetDimensionFlag::OGL_PX;
+    descButton.widget.height.value = 42.0f;
+    descButton.widget.height.flag = OGLWidgetDimensionFlag::OGL_PX;
+
+    descButton.button.onClick = clickHello;
+    descButton.button.radius = 2.5f;
+    std::shared_ptr<OGLIWidget> btn1 (new OGLRoundedButton(descButton));
+    listContainer1->add(btn1);
+    /**********************************************************************************/
+    listContainer->add(listContainer1);
+    mainWidget.add(listContainer);
+    /**********************************************************************************/
     OGLWidgetEvent wEvent;
     wEvent.type = OGL_WIDGET_MOVE;
     wEvent.data.move.x = 0.0f;
@@ -258,7 +300,6 @@ int main()
     while (true) {
 
         while (!redraw || (redraw && oglwindow.pendingEvent())) {
-            redraw = true;
             oglwindow.getEvent(event);
             switch (event.type) {
 
@@ -345,22 +386,22 @@ int main()
                 break;
 
             case OGL_WINDOW_KEY_UP:
-    //            std::cout << "code up: " <<  OGL_WINDOW_KEY_GET_CODE(event) << std::endl;
+                //            std::cout << "code up: " <<  OGL_WINDOW_KEY_GET_CODE(event) << std::endl;
                 break;
 
             case OGL_WINDOW_KEY_DOWN:
-    //            std::cout << "code down: " <<  OGL_WINDOW_KEY_GET_CODE(event) << std::endl;
-                    if (OGL_WINDOW_KEY_GET_CODE(event) == 41) {
-                        int state = oglwindow.getState();
-                        if (state == OGL_STATE_NONE) {
-                            break;
-                        }
-                        if (!(state & OGL_STATE_FULLSCREEN)) {
-                            oglwindow.fullscreen();
-                        } else {
-                            oglwindow.restore();
-                        }
+                //            std::cout << "code down: " <<  OGL_WINDOW_KEY_GET_CODE(event) << std::endl;
+                if (OGL_WINDOW_KEY_GET_CODE(event) == 41) {
+                    int state = oglwindow.getState();
+                    if (state == OGL_STATE_NONE) {
+                        break;
                     }
+                    if (!(state & OGL_STATE_FULLSCREEN)) {
+                        oglwindow.fullscreen();
+                    } else {
+                        oglwindow.restore();
+                    }
+                }
                 break;
             }
 
