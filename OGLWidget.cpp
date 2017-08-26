@@ -9,9 +9,9 @@ OGLWidget::OGLWidget(OGLWidgetDescription description)
     //NO ME QUEDA CALRO PORQUE ESTO SOLUCIONA EL PROBLEMA
     //EN EL QUE ALGUNO WIDGET NO SE MUESTRAN
     mXLeft = FLT_MIN;
-    mXRight = FLT_MIN;
+    mXRight = FLT_MAX;
     mYTop = FLT_MIN;
-    mYBottom = FLT_MIN;
+    mYBottom = FLT_MAX;
     mXParent = FLT_MIN;
     mYParent = FLT_MIN;
     /******************************************************************************/
