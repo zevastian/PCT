@@ -67,7 +67,7 @@ void OGLScrollbar::setValue(float value)
     }
 }
 
-void OGLScrollbar::setMaxRange(float value)
+void OGLScrollbar::setMaxRangeValue(float value)
 {
     if (value >= 0.0f) {
         mMaxRangeValue = value;

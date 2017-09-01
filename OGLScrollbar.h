@@ -29,7 +29,7 @@ public:
     /**/
     void setValue(float value);
     /**/
-    void setMaxRange(float value);
+    void setMaxRangeValue(float value);
     /**/
     float getValue();
 
