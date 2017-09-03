@@ -203,7 +203,7 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
         }
 
         float widgetHeight = OGLWidget::getYBottom() - OGLWidget::getYTop();
-        mBarHeight = (widgetHeight*widgetHeight)/mMaxRangeValue;
+        mBarHeight = (mMaxRangeValue > 0.0f) ? (widgetHeight*widgetHeight)/mMaxRangeValue : widgetHeight;
         if (mBarHeight >= widgetHeight) {
             mBarHeight = widgetHeight;
             mBarDisable = true;
