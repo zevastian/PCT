@@ -12,7 +12,7 @@ OGLTileview::OGLTileview(OGLWidgetDescription description) : OGLWidget(descripti
     desc.height.value = 100.0f;
     desc.height.flag = OGLWidgetDimensionFlag::OGL_PERCENT;
     mScrollbar = std::shared_ptr<OGLScrollbar> (new OGLScrollbar(desc));
-    //ESTO SOLO ES PARA PROBAR
+    //SE SUPONE QUE SCROLLBAR TIENE QUE INICIALIZARLO
     mScrollbar->setMaxRangeValue(0.0f);
     mScrollbar->setValue(0.0f);
     /******************************************************************************/
@@ -37,10 +37,13 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         ev.data.move.x = OGLWidget::getXLeft();
         ev.data.move.y = OGLWidget::getYTop();
         mScrollbar->onEvent(ev);
+        //mScrollbar->setMaxRangeValue();
+        //mScrollbar->setValue();
         ev.type = OGL_WIDGET_SIZE;
         ev.data.size.width = OGLWidget::getXRight() - OGLWidget::getXLeft();
         ev.data.size.height = OGLWidget::getYBottom() - OGLWidget::getYTop();
         mScrollbar->onEvent(ev);
+        //mScrollbar->getValue();
         break;
 
     case OGL_WIDGET_MOVE:
@@ -58,7 +61,7 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         break;
 
     default:
-        mScrollbar->onEvent(event);
+        ret = mScrollbar->onEvent(event);
         break;
     }
 
