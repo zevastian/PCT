@@ -66,6 +66,10 @@ int OGLImage::onEvent(OGLWidgetEvent event)
             mImageY = OGLWidget::getYTop();
             mImageHeight = height;
             break;
+
+        //PARA QUE NO ME TIRE LA ADVERTENCIA
+        default:
+            break;
         }
         break;
 

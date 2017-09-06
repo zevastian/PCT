@@ -4,7 +4,8 @@
 
 OGLScrollbar::OGLScrollbar(OGLWidgetDescription description) : OGLWidget(description)
 {
-    //NADA
+    //FALTA INICIALIZAR
+    //LAS VARIABLES
 }
 
 OGLScrollbar::~OGLScrollbar()
@@ -67,6 +68,11 @@ void OGLScrollbar::setValue(float value)
     }
 }
 
+float OGLScrollbar::getValue()
+{
+    return !mBarDisable ? mCurrentValue : 0.0f;
+}
+
 void OGLScrollbar::setMaxRangeValue(float value)
 {
     if (value >= 0.0f) {
@@ -74,9 +80,9 @@ void OGLScrollbar::setMaxRangeValue(float value)
     }
 }
 
-float OGLScrollbar::getValue()
+float OGLScrollbar::getMaxRangeValue()
 {
-    return !mBarDisable ? mCurrentValue : 0.0f;
+    return mMaxRangeValue;
 }
 
 int OGLScrollbar::onEvent(OGLWidgetEvent event)
@@ -209,9 +215,8 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
             mBarDisable = false;
             updateBarStatus((mCurrentValue*(widgetHeight - mBarHeight))/(mMaxRangeValue - widgetHeight), false);
         }
-        if (!mBarDisable || mCurrentValue != 0) {
-            ret |= OGL_WIDGET_RET_SCROLL_CHANGE_VALUE;
-        }
+        //HAY CASOS EN EL QUE EN REALIDAD NO CAMBIA
+        ret |= OGL_WIDGET_RET_SCROLL_CHANGE_VALUE;
         break;
     }
 

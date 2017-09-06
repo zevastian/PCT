@@ -29,9 +29,11 @@ public:
     /**/
     void setValue(float value);
     /**/
+    float getValue();
+    /**/
     void setMaxRangeValue(float value);
     /**/
-    float getValue();
+    float getMaxRangeValue();
 
     /**/
     int onEvent(OGLWidgetEvent event);
