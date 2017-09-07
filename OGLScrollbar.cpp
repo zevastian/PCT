@@ -63,7 +63,11 @@ void OGLScrollbar::drawBar()
 
 void OGLScrollbar::setValue(float value)
 {
-    if (value >= 0.0f && value <= mMaxRangeValue) {
+    if (value < 0.0f) {
+        mCurrentValue = 0.0f;
+    } else if (value > mMaxRangeValue) {
+        mCurrentValue = mMaxRangeValue;
+    } else {
         mCurrentValue = value;
     }
 }
@@ -75,7 +79,9 @@ float OGLScrollbar::getValue()
 
 void OGLScrollbar::setMaxRangeValue(float value)
 {
-    if (value >= 0.0f) {
+    if (value < 0.0f) {
+        mMaxRangeValue = 0.0f;
+    } else {
         mMaxRangeValue = value;
     }
 }

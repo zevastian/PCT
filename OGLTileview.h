@@ -32,7 +32,7 @@ private:
     int mItemSelected;
     unsigned int mNumItems;
     bool mBarFocused;
-    void forEachVisibleItem(std::function<void (int x, int y, int indx)> fnc);
+    void forEachVisibleItem(std::function<void (float x, float y, int indx)> fnc);
 
 public:
     /**/
