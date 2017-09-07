@@ -31,18 +31,18 @@ OGLTileview::~OGLTileview()
 void OGLTileview::forEachVisibleItem(std::function<void (int x, int y, int indx)> fnc)
 {
     //CALCULAR PRIMER ELEMENTO VISIBLE
-    unsigned int rowFirst = std::floor(mScrollbar->getValue()/mItemHeight);
+    unsigned int rowFirst = std::floor(mScrollbar->getValue()/(mItemHeight + mItemOffset));
     unsigned int first = rowFirst*mNumColumns;
     //CALCULAR ULTIMO ELEMENTO VISIBLE
     int widgetWidth = OGLWidget::getXRight() - OGLWidget::getXLeft();
-    unsigned rowFinish = std::ceil((widgetWidth - mItemOffset + mScrollbar->getValue())/mItemHeight);
+    unsigned rowFinish = std::ceil((widgetWidth - mItemOffset + mScrollbar->getValue())/(mItemHeight + mItemOffset));
     unsigned int finish = first + (rowFinish - rowFirst)*mNumColumns;
     if (finish > mNumItems) {
         finish = mNumItems;
     }
 
     float x = OGLWidget::getXLeft() + mItemOffset;
-    float y = OGLWidget::getYTop() + mItemOffset + rowFirst*mItemHeight - mScrollbar->getValue();
+    float y = OGLWidget::getYTop() + mItemOffset + rowFirst*(mItemHeight + mItemOffset) - mScrollbar->getValue();
     for (unsigned int i = first; i < finish; i++) {
         //
         fnc(x, y, i);
@@ -51,7 +51,7 @@ void OGLTileview::forEachVisibleItem(std::function<void (int x, int y, int indx)
         //El 6 CORRESPONDE AL ANCHO DE EL SCROLLBAR
         if (x > (OGLWidget::getXLeft() + widgetWidth - 6.0f - mItemOffset)) {
             x = OGLWidget::getXLeft() + mItemOffset;
-            y += mItemHeight;
+            y += mItemHeight + mItemOffset;
         }
     }
 }
