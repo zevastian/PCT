@@ -1,3 +1,4 @@
+#include<epoxy/gl.h>
 #include"OGLWidget.h"
 
 #ifndef _OGL_IMAGE_H_

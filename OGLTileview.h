@@ -1,8 +1,8 @@
 #include<memory>
-#include<functional>
+#include<vector>
 #include"OGLWidget.h"
 #include"OGLScrollbar.h"
-#include"OGLLabel.h"
+#include"OGLTileviewItem.h"
 
 #ifndef _OGL_TILEVIEW_H_
 #define _OGL_TILEVIEW_H_
@@ -24,15 +24,18 @@ class OGLTileview : public OGLWidget
 {
 private:
     std::shared_ptr<OGLScrollbar> mScrollbar;
+    std::shared_ptr<OGLTileviewItem> mFocusedItem;
+    std::vector<std::shared_ptr<OGLTileviewItem>> mItems;
+    unsigned int mFirstItem;
+    unsigned int mFinishItem;
     int mNumColumns;
     float mItemMinWidth;
     float mItemOffset;
     float mItemWidth;
     float mItemHeight;
-    int mItemSelected;
-    unsigned int mNumItems;
     bool mBarFocused;
-    void forEachVisibleItem(std::function<void (float x, float y, int indx)> fnc);
+    void calculateVisibleItems();
+    void updateItemsPosition();
 
 public:
     /**/
