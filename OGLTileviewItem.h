@@ -6,10 +6,10 @@
 class OGLTileviewItem : public OGLIWidget
 {
 private:
-    float mXLeft;
-    float mXRight;
-    float mYTop;
-    float mYBottom;
+    float mX;
+    float mY;
+    float mWidth;
+    float mHeight;
     bool mFocused;
 
 public:

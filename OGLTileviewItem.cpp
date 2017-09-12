@@ -20,24 +20,28 @@ int OGLTileviewItem::onEvent(OGLWidgetEvent event)
 
     case OGL_WIDGET_MOUSE_MOVE:
         if (utils::inToRect(OGL_WIDGET_MOUSE_GET_X(event), OGL_WIDGET_MOUSE_GET_Y(event),
-                            mXLeft, mYTop, mXRight, mYBottom)) {
+                            mX, mY, mX + mWidth, mY + mHeight)) {
+
+            ret |= OGL_WIDGET_RET_FOCUS_GET | OGL_WIDGET_RET_DRAW;
             mFocused = true;
-            ret = OGL_WIDGET_RET_FOCUS_GET;
+        } else  {
+            mFocused = false;
         }
         break;
 
     case OGL_WIDGET_MOVE:
-        mXLeft = OGL_WIDGET_MOVE_GET_X(event);
-        mYTop = OGL_WIDGET_MOVE_GET_Y(event);
+        mX = OGL_WIDGET_MOVE_GET_X(event);
+        mY = OGL_WIDGET_MOVE_GET_Y(event);
         break;
 
     case OGL_WIDGET_SIZE:
-        mXRight = mXLeft + OGL_WIDGET_SIZE_GET_WIDTH(event);
-        mYBottom = mYTop + OGL_WIDGET_SIZE_GET_HEIGHT(event);
+        mWidth = OGL_WIDGET_SIZE_GET_WIDTH(event);
+        mHeight = OGL_WIDGET_SIZE_GET_HEIGHT(event);
         break;
 
     case OGL_WIDGET_FOCUS_RELEASE:
         mFocused = false;
+        ret |= OGL_WIDGET_RET_DRAW;
         break;
 
     case OGL_WIDGET_DRAW:
@@ -48,10 +52,10 @@ int OGLTileviewItem::onEvent(OGLWidgetEvent event)
             glColor4f(0.667f, 0.667f, 0.667f, 1.0f);
         }
         glBegin(GL_QUADS);
-        glVertex2f(mXLeft, mYTop);
-        glVertex2f(mXRight, mYTop);
-        glVertex2f(mXRight, mYBottom);
-        glVertex2f(mXLeft, mYBottom);
+        glVertex2f(mX, mY);
+        glVertex2f(mX + mWidth, mY);
+        glVertex2f(mX + mWidth, mY + mHeight);
+        glVertex2f(mX, mY + mHeight);
         glEnd();
         break;
     }

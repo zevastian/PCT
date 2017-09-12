@@ -4,7 +4,7 @@
 namespace utils
 {
 
-Display* privOpenDisplay()
+Display* privateOpenDisplay()
 {
     Display* display = XOpenDisplay(NULL);
     if (!display) {
@@ -13,7 +13,7 @@ Display* privOpenDisplay()
     return display;
 }
 
-void privCloseDisplay(Display*& display)
+void privateCloseDisplay(Display*& display)
 {
     if (display) {
         XCloseDisplay(display);
@@ -23,33 +23,33 @@ void privCloseDisplay(Display*& display)
 
 unsigned int getDesktopWidth()
 {
-    Display* display = privOpenDisplay();
+    Display* display = privateOpenDisplay();
     int width = DefaultScreenOfDisplay(display)->width;
-    privCloseDisplay(display);
+    privateCloseDisplay(display);
     return width;
 }
 
 unsigned int getDesktopHeight()
 {
-    Display* display = privOpenDisplay();
+    Display* display = privateOpenDisplay();
     int height = DefaultScreenOfDisplay(display)->height;
-    privCloseDisplay(display);
+    privateCloseDisplay(display);
     return height;
 }
 
 unsigned int getScreenWidth()
 {
-    Display* display = privOpenDisplay();
+    Display* display = privateOpenDisplay();
     int width = DefaultScreenOfDisplay(display)->width;
-    privCloseDisplay(display);
+    privateCloseDisplay(display);
     return width;
 }
 
 unsigned int getScreenHeight()
 {
-    Display* display = privOpenDisplay();
+    Display* display = privateOpenDisplay();
     int height = DefaultScreenOfDisplay(display)->height;
-    privCloseDisplay(display);
+    privateCloseDisplay(display);
     return height;
 }
 

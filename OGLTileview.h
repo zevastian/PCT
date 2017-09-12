@@ -33,9 +33,10 @@ private:
     float mItemOffset;
     float mItemWidth;
     float mItemHeight;
-    bool mBarFocused;
+    bool mBarPressed;
     void calculateVisibleItems();
     void updateItemsPosition();
+    void updateItemsSize();
 
 public:
     /**/

@@ -19,6 +19,7 @@ OGLTileview::OGLTileview(OGLTileviewDescription description) : OGLWidget(descrip
     //FALTA CHEQUEAR
     mItemMinWidth = description.tileview.minWidthItem;
     mItemOffset = description.tileview.offsetItem;
+    mFocusedItem = nullptr;
     /******************************************************************************/
     //PARA PROBAR
     for (int i = 0; i < 50; i++) {
@@ -65,6 +66,18 @@ void OGLTileview::updateItemsPosition()
     }
 }
 
+void OGLTileview::updateItemsSize()
+{
+    OGLWidgetEvent event;
+    event.type = OGL_WIDGET_SIZE;
+    event.data.size.width = mItemWidth;
+    event.data.size.height = mItemHeight;
+    //NOTIFICAR A TODOS LOS ITEMS
+    for (unsigned int i = 0; i < mItems.size(); i++) {
+        mItems[i]->onEvent(event);
+    }
+}
+
 int OGLTileview::onEvent(OGLWidgetEvent event)
 {
     int ret = OGL_WIDGET_RET_NONE;
@@ -87,6 +100,7 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
             mNumColumns = std::floor(availableWidth/(mItemMinWidth + mItemOffset));
             mItemWidth = availableWidth/mNumColumns - mItemOffset;
             mItemHeight = 1.5f*mItemWidth;
+            updateItemsSize();
             /******************************************************************************/
             float lastMaxRangeValue = mScrollbar->getMaxRangeValue();
             mScrollbar->setMaxRangeValue((mItemHeight + mItemOffset)*std::ceil(((float)mItems.size())/mNumColumns));
@@ -102,14 +116,21 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         ev.type = OGL_WIDGET_SIZE;
         ev.data.size.width = OGLWidget::getXRight() - OGLWidget::getXLeft();
         ev.data.size.height = OGLWidget::getYBottom() - OGLWidget::getYTop();
-        mScrollbar->onEvent(ev);
-        //CUANDO CAMBIA VALUE DE SCROLL AL CAMBIAR DE TAMAÑO
-        //LA VENTANA, PARA QUE NO QUEDE NINGUN ITEM
-        //"SELECCIONADO" LO SETEO EN -1
-//        if (mSelectedItem != -1) {
-//            mSelectedItem = -1;
-//        }
-        //mScrollbar->getValue();
+        if (mScrollbar->onEvent(ev) & OGL_WIDGET_RET_SCROLL_CHANGE_VALUE) {
+            calculateVisibleItems();
+            updateItemsPosition();
+        }
+        //HACER QUE NINGUN ITEM QUEDE SELECCIONADO
+        //INDEPENDIENTEMENTE DE SI OGL_SIZE
+        //CAMBIA ALGO
+        if (mFocusedItem) {
+            OGLWidgetEvent event;
+            //LEER OBSERVACION DE ABAJO
+            event.type = OGL_WIDGET_FOCUS_RELEASE;
+            mFocusedItem->onEvent(event);
+            mFocusedItem = nullptr;
+            ret |= OGL_WIDGET_RET_DRAW;
+        }
         break;
 
     case OGL_WIDGET_MOUSE_MOVE:
@@ -120,17 +141,15 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
             updateItemsPosition();
         }
 
-        if (!mBarFocused) {
+        if (!mBarPressed) {
             bool getFocus = false;
             for (unsigned int i = mFirstItem; i < mFinishItem; i++) {
-                int retItem = mItems[i]->onEvent(event);
-
                 //NO USAR FOCUS_GET PORQUE EL WIDGET NO TOMA EL FOCO
                 //SOLAMENTE EL MOUSE SE POSICIONA ARRIBA DE EL
-                if (retItem & OGL_WIDGET_RET_FOCUS_GET) {
+                if (mItems[i]->onEvent(event) & OGL_WIDGET_RET_FOCUS_GET) {
                     getFocus = true;
                     if (mFocusedItem != mItems[i]) {
-                        if (mFocusedItem != nullptr) {
+                        if (mFocusedItem) {
                             OGLWidgetEvent event;
                             //NO USAR FOCUS_RELEASE PORQUE ESTE INDICA
                             //QUE EL WIDGET PIERDE EL FOCO Y ACA
@@ -144,7 +163,7 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
                     break;
                 }
             }
-            if (!getFocus && mFocusedItem != nullptr) {
+            if (!getFocus && mFocusedItem) {
                 //SE DEBERIA NOTIFICAR AL WIDGET mFocusedItem
                 //SI ESTE ES DISTINTO DE NULL?
                 mFocusedItem = nullptr;
@@ -157,7 +176,7 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         ret = mScrollbar->onEvent(event);
         if (ret & OGL_WIDGET_RET_FOCUS_GET) {
             ret &= ~OGL_WIDGET_RET_FOCUS_GET;
-            mBarFocused = true;
+            mBarPressed = true;
             //NOTIFICAR AL WIDGET mFocusedItem?
             if (ret & OGL_WIDGET_RET_SCROLL_CHANGE_VALUE) {
                 ret &= ~OGL_WIDGET_RET_SCROLL_CHANGE_VALUE;
@@ -169,7 +188,7 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         //CREO QUE ESTO SOLO FUNCIONA BIEN SI SIEMPRE
         //ANTES DE UN CLICK_DOWN SE NOTIFICA CON MOUSE_MOVE
         //CUYAS COORDENADAS SON SIMILARES
-        if (mFocusedItem != nullptr) {
+        if (mFocusedItem) {
             //LLAMAR CALLBACK
         }
         break;
@@ -179,9 +198,9 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         ret = mScrollbar->onEvent(event);
         if (ret & OGL_WIDGET_RET_FOCUS_RELEASE) {
             ret &= ~OGL_WIDGET_RET_FOCUS_RELEASE;
-            mBarFocused = false;
+            mBarPressed = false;
         }
-        if (mFocusedItem != nullptr) {
+        if (mFocusedItem) {
             OGLWidgetEvent event;
             //LEER OBSERVACION DE ARRIBA
             event.type = OGL_WIDGET_FOCUS_RELEASE;
@@ -215,7 +234,7 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         ret = mScrollbar->onEvent(event);
         if (ret & OGL_WIDGET_RET_FOCUS_RELEASE) {
             ret &= ~OGL_WIDGET_RET_FOCUS_RELEASE;
-            mBarFocused = false;
+            mBarPressed = false;
         }
         if (ret & OGL_WIDGET_RET_SCROLL_CHANGE_VALUE) {
             ret &= ~OGL_WIDGET_RET_SCROLL_CHANGE_VALUE;
@@ -225,7 +244,7 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
             //CUANDO CAMBIA EL VALOR DEL SCROLL
             //PARA QUE NO QUEDE NINGUN ITEM "SELECCIONADO", LO NOTIFICO
             //DEBERIA HACER LO MISMO CON ANIMATE
-            if (mFocusedItem != nullptr) {
+            if (mFocusedItem) {
                 OGLWidgetEvent event;
                 //LEER OBSERVACION DE ARRIBA
                 event.type = OGL_WIDGET_FOCUS_RELEASE;
