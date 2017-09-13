@@ -5,7 +5,7 @@
 
 OGLTileviewItem::OGLTileviewItem()
 {
-
+    mFocused = false;
 }
 
 OGLTileviewItem::~OGLTileviewItem()
@@ -24,7 +24,7 @@ int OGLTileviewItem::onEvent(OGLWidgetEvent event)
 
             ret |= OGL_WIDGET_RET_FOCUS_GET | OGL_WIDGET_RET_DRAW;
             mFocused = true;
-        } else  {
+        } else {
             mFocused = false;
         }
         break;

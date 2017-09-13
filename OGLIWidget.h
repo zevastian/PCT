@@ -27,12 +27,12 @@ struct OGLWidgetEvent {
     int type;
     union {
         struct {
-            unsigned int width;
-            unsigned int height;
+            float width;
+            float height;
         } size;
         struct {
-            int x;
-            int y;
+            float x;
+            float y;
         } move;
         struct {
             int x;
