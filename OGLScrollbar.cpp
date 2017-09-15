@@ -63,10 +63,11 @@ void OGLScrollbar::drawBar()
 
 void OGLScrollbar::setValue(float value)
 {
-    if (value < 0.0f) {
+    float widgetHeight = OGLWidget::getYBottom() - OGLWidget::getYTop();
+    if (value > mMaxRangeValue - widgetHeight) {
+        value = mMaxRangeValue - widgetHeight;
+    } else if (value < 0.0f) {
         mCurrentValue = 0.0f;
-    } else if (value > mMaxRangeValue) {
-        mCurrentValue = mMaxRangeValue;
     } else {
         mCurrentValue = value;
     }
@@ -219,7 +220,9 @@ int OGLScrollbar::onEvent(OGLWidgetEvent event)
             mBarDisable = true;
         } else {
             mBarDisable = false;
-            updateBarStatus((mCurrentValue*(widgetHeight - mBarHeight))/(mMaxRangeValue - widgetHeight), false);
+            //CONFIRMAR QUE ES LA SOLUCION CORRECTA PARA
+            //VOLVER A LA VERSION ANTERIOR DEL METODO
+            updateBarStatus((mCurrentValue*(widgetHeight - mBarHeight))/(mMaxRangeValue - widgetHeight), true);
         }
         //HAY CASOS EN EL QUE EN REALIDAD NO CAMBIA
         ret |= OGL_WIDGET_RET_SCROLL_CHANGE_VALUE;

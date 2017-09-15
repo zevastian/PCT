@@ -95,6 +95,8 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         //EXPERIMENTAL
         {
             /******************************************************************************/
+            float target = mNumColumns*(mScrollbar->getValue()/(mItemHeight + mItemOffset));
+            /******************************************************************************/
             //El 6 CORRESPONDE AL ANCHO DEL SCROLLBAR
             float availableWidth = OGLWidget::getXRight() - OGLWidget::getXLeft() - 6.0f - mItemOffset;
             mNumColumns = std::floor(availableWidth/(mItemMinWidth + mItemOffset));
@@ -102,23 +104,17 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
             mItemHeight = 1.5f*mItemWidth;
             updateItemsSize();
             /******************************************************************************/
-            float lastMaxRangeValue = mScrollbar->getMaxRangeValue();
             mScrollbar->setMaxRangeValue((mItemHeight + mItemOffset)*std::ceil(((float)mItems.size())/mNumColumns));
             /******************************************************************************/
-            //FALTA TERMINAR
-            if (lastMaxRangeValue > 0.0f) {
-                mScrollbar->setValue((mScrollbar->getValue()/lastMaxRangeValue)*mScrollbar->getMaxRangeValue());
-            } else {
-                mScrollbar->setValue(0.0f);
-            }
-            /******************************************************************************/
-        }
-        ev.type = OGL_WIDGET_SIZE;
-        ev.data.size.width = OGLWidget::getXRight() - OGLWidget::getXLeft();
-        ev.data.size.height = OGLWidget::getYBottom() - OGLWidget::getYTop();
-        if (mScrollbar->onEvent(ev) & OGL_WIDGET_RET_SCROLL_CHANGE_VALUE) {
+            ev.type = OGL_WIDGET_SIZE;
+            ev.data.size.width = OGLWidget::getXRight() - OGLWidget::getXLeft();
+            ev.data.size.height = OGLWidget::getYBottom() - OGLWidget::getYTop();
+            mScrollbar->onEvent(ev);
+            mScrollbar->setValue((target/mNumColumns)*(mItemHeight + mItemOffset));
+            mScrollbar->onEvent(ev);
             calculateVisibleItems();
             updateItemsPosition();
+            /******************************************************************************/
         }
         //HACER QUE NINGUN ITEM QUEDE SELECCIONADO
         //INDEPENDIENTEMENTE DE SI OGL_SIZE
