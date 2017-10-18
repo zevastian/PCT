@@ -6,7 +6,9 @@ PCTNetworkWorker::PCTNetworkWorker()
     :mExit(false)
 {
     CURLcode code;
-    if ((code = curl_global_init(CURL_GLOBAL_DEFAULT)) != CURLE_OK) {
+
+    code = curl_global_init(CURL_GLOBAL_DEFAULT);
+    if (code != CURLE_OK) {
         throw std::runtime_error(curl_easy_strerror(code));
     }
 
@@ -16,12 +18,15 @@ PCTNetworkWorker::PCTNetworkWorker()
         throw std::runtime_error("curl_multi_init failed");
     }
 
+    //FIXME
+    //ESTA IMPLEMENTACION ITERA CIENTOS O MILES
+    //DE VECES POR SEGUNDO
     mThread = std::thread([&] {
         CURLMcode code;
-        while (true)
+        for(;;)
         {
             int running = 0;
-            while ((code = curl_multi_perform(mMultiHandle, &running)) == CURLM_CALL_MULTI_PERFORM);
+            code = curl_multi_perform(mMultiHandle, &running);
             if (code != CURLM_OK) {
                 throw std::runtime_error(curl_multi_strerror(code));
             }
@@ -35,51 +40,59 @@ PCTNetworkWorker::PCTNetworkWorker()
             int pending = 0;
             CURLMsg* msg;
             while ((msg = curl_multi_info_read(mMultiHandle, &pending))) {
-
                 if (msg->msg == CURLMSG_DONE) {
+
                     for (auto it = mItemsWorking.begin(); it != mItemsWorking.end(); it++) {
                         if (it->second == msg->easy_handle) {
-                            if (curl_multi_remove_handle(mMultiHandle, it->second) != CURLM_OK) {
+                            code = curl_multi_remove_handle(mMultiHandle, it->second);
+                            if (code != CURLM_OK) {
+                                //FIXME
+                                //EVITAR LANZAR LA EXCEPCION
                                 throw std::runtime_error(curl_multi_strerror(code));
                             }
                             if (msg->data.result != CURLE_OK) {
-                                curl_easy_cleanup(msg->easy_handle);
+                                curl_easy_cleanup(it->second);
                                 it->first->onFinish(PCT_NET_FAILURE);
                             } else {
-                                mCurlHandles.push(msg->easy_handle);
+                                mCurlHandles.push(it->second);
                                 it->first->onFinish(PCT_NET_SUCCESS);
                             }
                             mItemsWorking.erase(it);
                             break;
                         }
                     }
+
                 }
             }
 
-            if (running < MAX_SIMULTANEOUS_HANDLES) {
-                //ESTA BIEN USAR EL LOCK?
+            if (running < MAX_HANDLES) {
+                //TODO
+                //ESTA BIEN USADO EL LOCK?
                 std::unique_lock<std::mutex> lock(mMutexQueueItemsWaiting);
-                if (!mItemsWaiting.size() && !running) {
+                if (mItemsWaiting.empty() && !running) {
                     if (mExit) {
                         return;
                     }
-
                     while(mItemsWaiting.empty() && !mExit) {
                         mCondVarItemsWaiting.wait(lock);
                     }
                 }
 
-                if (mItemsWaiting.size() > 0) {
-                    size_t iter = std::min((size_t)(MAX_SIMULTANEOUS_HANDLES - running), mItemsWaiting.size());
+                //TODO
+                //SACAR LOS CONTINUE
+                if (!mItemsWaiting.empty()) {
+                    size_t iter = std::min((size_t)(MAX_HANDLES - running), mItemsWaiting.size());
                     for (size_t i = 0; i < iter; i++) {
 
                         std::shared_ptr<PCTNetworkItem> item = mItemsWaiting.top();
                         mItemsWaiting.pop();
 
                         CURL* handle = NULL;
-                        if (mCurlHandles.size() < (size_t)(MAX_SIMULTANEOUS_HANDLES - running)) {
+                        if (mCurlHandles.empty()) {
                             handle = curl_easy_init();
                             if (!handle) {
+                                //FIXME
+                                //EVITAR LANZAR LA EXCEPCION
                                 throw std::runtime_error("curl_easy_init failed");
                             }
                         } else {
@@ -125,6 +138,7 @@ PCTNetworkWorker::~PCTNetworkWorker()
 
 bool PCTNetworkWorker::PCTItemComparator::operator()(std::shared_ptr<PCTNetworkItem>& item1, std::shared_ptr<PCTNetworkItem>& item2)
 {
+    //FALTA TERMINAR ESTO!!
     return true;
 }
 

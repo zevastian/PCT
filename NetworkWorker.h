@@ -10,7 +10,7 @@
 
 #ifndef _NETWORKWORKER_H_
 #define _NETWORKWORKER_H_
-#define MAX_SIMULTANEOUS_HANDLES 8
+#define MAX_HANDLES 8
 
 class PCTNetworkWorker
 {
