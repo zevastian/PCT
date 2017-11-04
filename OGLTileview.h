@@ -30,7 +30,8 @@ private:
     unsigned int mFinishItem;
     int mNumColumns;
     float mItemMinWidth;
-    float mItemOffset;
+    float mItemOffsetX;
+    float mItemOffsetY;
     float mItemWidth;
     float mItemHeight;
     bool mBarPressed;

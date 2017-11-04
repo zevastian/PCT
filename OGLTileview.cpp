@@ -18,12 +18,13 @@ OGLTileview::OGLTileview(OGLTileviewDescription description) : OGLWidget(descrip
     /******************************************************************************/
     //FALTA CHEQUEAR
     mItemMinWidth = description.tileview.minWidthItem;
-    mItemOffset = description.tileview.offsetItem;
+    mItemOffsetX = description.tileview.offsetItem;
+    mItemOffsetY = description.tileview.offsetItem;
     mFocusedItem = nullptr;
     /******************************************************************************/
     //PARA PROBAR
     for (int i = 0; i < 50; i++) {
-        mItems.push_back(std::shared_ptr<OGLTileviewItem>(new OGLTileviewItem));
+        mItems.push_back(std::make_shared<OGLTileviewItem>());
     }
 }
 
@@ -35,11 +36,11 @@ OGLTileview::~OGLTileview()
 void OGLTileview::calculateVisibleItems()
 {
     //CALCULAR PRIMER ELEMENTO VISIBLE
-    unsigned int rowFirst = std::floor(mScrollbar->getValue()/(mItemHeight + mItemOffset));
+    unsigned int rowFirst = std::floor(mScrollbar->getValue()/(mItemHeight + mItemOffsetY));
     mFirstItem = rowFirst*mNumColumns;
     //CALCULAR ULTIMO ELEMENTO VISIBLE
     float widgetHeight = OGLWidget::getYBottom() - OGLWidget::getYTop();
-    unsigned int rowFinish = std::floor((widgetHeight - mItemOffset + mScrollbar->getValue())/(mItemHeight + mItemOffset));
+    unsigned int rowFinish = std::floor((widgetHeight - mItemOffsetX + mScrollbar->getValue())/(mItemHeight + mItemOffsetY));
     mFinishItem = mFirstItem + (rowFinish - rowFirst + 1)*mNumColumns;
     if (mFinishItem > mItems.size()) {
         mFinishItem = mItems.size();
@@ -49,19 +50,18 @@ void OGLTileview::calculateVisibleItems()
 void OGLTileview::updateItemsPosition()
 {
     OGLWidgetEvent event;
-    unsigned int rowFirst = std::floor(mScrollbar->getValue()/(mItemHeight + mItemOffset));
-    event.data.move.x = OGLWidget::getXLeft() + mItemOffset;
-    event.data.move.y = OGLWidget::getYTop() + mItemOffset + rowFirst*(mItemHeight + mItemOffset) - mScrollbar->getValue();
+    unsigned int rowFirst = std::floor(mScrollbar->getValue()/(mItemHeight + mItemOffsetY));
+    event.data.move.x = OGLWidget::getXLeft() + mItemOffsetX;
+    event.data.move.y = OGLWidget::getYTop() + mItemOffsetX + rowFirst*(mItemHeight + mItemOffsetY) - mScrollbar->getValue();
     event.type = OGL_WIDGET_MOVE;
 
+    //El 6 CORRESPONDE AL ANCHO DEL SCROLLBAR
     for (unsigned int i = mFirstItem; i < mFinishItem; i++) {
         mItems[i]->onEvent(event);
-
-        event.data.move.x += mItemWidth + mItemOffset;
-        //El 6 CORRESPONDE AL ANCHO DEL SCROLLBAR
-        if (event.data.move.x > (OGLWidget::getXRight() - 6.0f - mItemOffset)) {
-            event.data.move.x = OGLWidget::getXLeft() + mItemOffset;
-            event.data.move.y += mItemHeight + mItemOffset;
+        event.data.move.x += mItemWidth + mItemOffsetX;
+        if (event.data.move.x > (OGLWidget::getXRight() - 6.0f - mItemOffsetX)) {
+            event.data.move.x = OGLWidget::getXLeft() + mItemOffsetX;
+            event.data.move.y += mItemHeight + mItemOffsetY;
         }
     }
 }
@@ -73,8 +73,9 @@ void OGLTileview::updateItemsSize()
     event.data.size.width = mItemWidth;
     event.data.size.height = mItemHeight;
     //NOTIFICAR A TODOS LOS ITEMS
-    for (unsigned int i = 0; i < mItems.size(); i++) {
-        mItems[i]->onEvent(event);
+    //DEBERIA NOTIFICAR A TODOS LOS ITEMS?
+    for (auto it = mItems.begin(); it != mItems.end(); it++) {
+        it->get()->onEvent(event);
     }
 }
 
@@ -95,22 +96,24 @@ int OGLTileview::onEvent(OGLWidgetEvent event)
         //EXPERIMENTAL
         {
             /******************************************************************************/
-            float target = mNumColumns*(mScrollbar->getValue()/(mItemHeight + mItemOffset));
+            float target = mNumColumns*(mScrollbar->getValue()/(mItemHeight + mItemOffsetY));
             /******************************************************************************/
             //El 6 CORRESPONDE AL ANCHO DEL SCROLLBAR
-            float availableWidth = OGLWidget::getXRight() - OGLWidget::getXLeft() - 6.0f - mItemOffset;
-            mNumColumns = std::floor(availableWidth/(mItemMinWidth + mItemOffset));
-            mItemWidth = availableWidth/mNumColumns - mItemOffset;
+            float availableWidth = OGLWidget::getXRight() - OGLWidget::getXLeft() - 6.0f - mItemOffsetX;
+            mNumColumns = std::floor(availableWidth/(mItemMinWidth + mItemOffsetX));
+            mItemWidth = availableWidth/mNumColumns - mItemOffsetX;
             mItemHeight = 1.5f*mItemWidth;
             updateItemsSize();
             /******************************************************************************/
-            mScrollbar->setMaxRangeValue((mItemHeight + mItemOffset)*std::ceil(((float)mItems.size())/mNumColumns));
+            mScrollbar->setMaxRangeValue((mItemHeight + mItemOffsetY)*std::ceil(((float)mItems.size())/mNumColumns));
             /******************************************************************************/
             ev.type = OGL_WIDGET_SIZE;
             ev.data.size.width = OGLWidget::getXRight() - OGLWidget::getXLeft();
             ev.data.size.height = OGLWidget::getYBottom() - OGLWidget::getYTop();
+            //TODO
+            //NO ME GUSTA ESTO DE LLAMAR DOS VECES A ONEVENT
             mScrollbar->onEvent(ev);
-            mScrollbar->setValue((target/mNumColumns)*(mItemHeight + mItemOffset));
+            mScrollbar->setValue((target/mNumColumns)*(mItemHeight + mItemOffsetY));
             mScrollbar->onEvent(ev);
             calculateVisibleItems();
             updateItemsPosition();
