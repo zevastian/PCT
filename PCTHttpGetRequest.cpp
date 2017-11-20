@@ -18,14 +18,17 @@ bool PCTHttpGetRequest::onStart(CURL* handle)
         curl_easy_setopt(handle, CURLOPT_USERAGENT, "Mozilla/5.0");
         curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 15L);
         curl_easy_setopt(handle, CURLOPT_LOW_SPEED_TIME, 15L);
-        curl_easy_setopt(handle, CURLOPT_LOW_SPEED_LIMIT, 1024L);
-        //curl_easy_setopt(handle, CURLOPT_PIPEWAIT, 1L);
-        //curl_easy_setopt(handle, CURLOPT_USE_SSL, CURLUSESSL_ALL); NO ES PARA HTTPS
+        curl_easy_setopt(handle, CURLOPT_LOW_SPEED_LIMIT, 128L);
+#if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 43
+        curl_easy_setopt(handle, CURLOPT_PIPEWAIT, 1L);
+#endif
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 2L);
-        //curl_easy_setopt(handle, CURLOPT_SSL_VERIFYSTATUS, 1L);
+#if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 41
+        curl_easy_setopt(handle, CURLOPT_SSL_VERIFYSTATUS, 1L);
+#endif
         curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(handle, CURLOPT_MAXREDIRS, 10L);
+        curl_easy_setopt(handle, CURLOPT_MAXREDIRS, 3L);
         curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1L);
         curl_easy_setopt(handle, CURLOPT_URL, mURL.c_str());
         curl_easy_setopt(handle, CURLOPT_HTTPGET, 1L);
