@@ -24,8 +24,11 @@ PCTNetworkWorker::PCTNetworkWorker()
         throw std::runtime_error("curl_multi_setopt: " + std::string(curl_multi_strerror(mcode)));
     }
 
-    //CURLPIPE_HTTP1 | CURLPIPE_MULTIPLEX
+#if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 43
+    mcode = curl_multi_setopt(mMulti, CURLMOPT_PIPELINING, CURLPIPE_HTTP1 | CURLPIPE_MULTIPLEX);
+#elif LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 16
     mcode = curl_multi_setopt(mMulti, CURLMOPT_PIPELINING, 1L);
+#endif
     if (mcode != CURLM_OK) {
         curl_multi_cleanup(mMulti);
         curl_global_cleanup();
