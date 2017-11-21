@@ -4,8 +4,7 @@
 PCTNetworkWorker::PCTNetworkWorker()
     :mExit(false)
 {
-    CURLcode code;
-    code = curl_global_init(CURL_GLOBAL_DEFAULT);
+    CURLcode code = curl_global_init(CURL_GLOBAL_DEFAULT);
     if (code != CURLE_OK) {
         throw std::runtime_error("curl_global_init: " + std::string(curl_easy_strerror(code)));
     }
@@ -16,8 +15,7 @@ PCTNetworkWorker::PCTNetworkWorker()
         throw std::runtime_error("curl_multi_init: error");
     }
 
-    CURLMcode mcode;
-    mcode = curl_multi_setopt(mMulti, CURLMOPT_MAX_HOST_CONNECTIONS, 4L);
+    CURLMcode mcode = curl_multi_setopt(mMulti, CURLMOPT_MAX_HOST_CONNECTIONS, 4L);
     if (mcode != CURLM_OK) {
         curl_multi_cleanup(mMulti);
         curl_global_cleanup();
@@ -36,7 +34,6 @@ PCTNetworkWorker::PCTNetworkWorker()
     }
 
     mThread = std::thread([&] {
-        CURLMcode mcode;
         bool exit = false;
         do {
             {
@@ -47,6 +44,7 @@ PCTNetworkWorker::PCTNetworkWorker()
             }
 
             for (;;) {
+                CURLMcode mcode;
                 while (mItemsWorking.size() < PCT_MAX_COUNT_ITEMS) {
                     std::shared_ptr<PCTNetworkItem> item;
 
@@ -102,7 +100,7 @@ PCTNetworkWorker::PCTNetworkWorker()
                 }
 
                 int numfds = 0;
-                mcode = curl_multi_wait(mMulti, NULL, 0, 1000, &numfds);
+                mcode = curl_multi_wait(mMulti, NULL, 0, 100, &numfds);
                 if (mcode != CURLM_OK) {
                     throw std::runtime_error("curl_multi_wait: " + std::string(curl_multi_strerror(mcode)));
                 }

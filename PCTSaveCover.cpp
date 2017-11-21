@@ -10,6 +10,7 @@ PCTSaveCover::PCTSaveCover(std::string imdbCode, std::vector<char> coverData, in
 void PCTSaveCover::run()
 {
     //SET DEBERIA RETORNAR UN ERROR?
+#ifndef __NO_SAVE__
     PCTSingletonCache::getInstance().set(mImdbCode + "_COVER", mCoverData);
+#endif // __NO_SAVE__
 }
-
