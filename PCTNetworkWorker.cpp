@@ -105,25 +105,27 @@ PCTNetworkWorker::PCTNetworkWorker()
                     throw std::runtime_error("curl_multi_wait: " + std::string(curl_multi_strerror(mcode)));
                 }
 
-                int pending = 0;
-                CURLMsg* msg;
-                while ((msg = curl_multi_info_read(mMulti, &pending))) {
-                    if (msg->msg == CURLMSG_DONE) {
+                if (running != (int)mItemsWorking.size()) {
+                    CURLMsg* msg;
+                    int pending = 0;
+                    while ((msg = curl_multi_info_read(mMulti, &pending))) {
+                        if (msg->msg == CURLMSG_DONE) {
 
-                        for (auto it = mItemsWorking.begin(); it != mItemsWorking.end(); it++) {
-                            if (it->second == msg->easy_handle) {
-                                it->first->onFinish(msg->easy_handle, msg->data.result);
-                                mItemsWorking.erase(it);
-                                mcode = curl_multi_remove_handle(mMulti, msg->easy_handle);
-                                if (msg->data.result != CURLE_OK || mcode != CURLM_OK) {
-                                    curl_easy_cleanup(msg->easy_handle);
-                                } else {
-                                    mHandles.push(msg->easy_handle);
+                            for (auto it = mItemsWorking.begin(); it != mItemsWorking.end(); it++) {
+                                if (it->second == msg->easy_handle) {
+                                    it->first->onFinish(msg->easy_handle, msg->data.result);
+                                    mItemsWorking.erase(it);
+                                    mcode = curl_multi_remove_handle(mMulti, msg->easy_handle);
+                                    if (msg->data.result != CURLE_OK || mcode != CURLM_OK) {
+                                        curl_easy_cleanup(msg->easy_handle);
+                                    } else {
+                                        mHandles.push(msg->easy_handle);
+                                    }
+                                    break;
                                 }
-                                break;
                             }
-                        }
 
+                        }
                     }
                 }
 
