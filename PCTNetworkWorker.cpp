@@ -44,7 +44,6 @@ PCTNetworkWorker::PCTNetworkWorker()
             }
 
             for (;;) {
-                CURLMcode mcode;
                 while (mItemsWorking.size() < PCT_MAX_COUNT_ITEMS) {
                     std::shared_ptr<PCTNetworkItem> item;
 
@@ -61,26 +60,23 @@ PCTNetworkWorker::PCTNetworkWorker()
                         break;
                     }
 
-                    CURL* handle = NULL;
+                    CURL* handle;
                     if (mHandles.empty()) {
                         handle = curl_easy_init();
                     } else {
                         handle = mHandles.front();
                         mHandles.pop();
-                        curl_easy_reset(handle);
                     }
 
                     bool failed = true;
                     if (handle) {
                         if (item->onStart(handle)) {
-                            mcode = curl_multi_add_handle(mMulti, handle);
-                            if (mcode == CURLM_OK) {
+                            if (curl_multi_add_handle(mMulti, handle) == CURLM_OK) {
                                 mItemsWorking.push_back(std::make_pair(std::move(item), handle));
                                 failed = false;
                             }
                         }
                     }
-
                     if (failed) {
                         item->onFinish(NULL, CURLE_OK);
                         if (handle) {
@@ -94,7 +90,7 @@ PCTNetworkWorker::PCTNetworkWorker()
                 }
 
                 int running = 0;
-                mcode = curl_multi_perform(mMulti, &running);
+                CURLMcode mcode = curl_multi_perform(mMulti, &running);
                 if (mcode != CURLM_OK) {
                     throw std::runtime_error("curl_multi_perform: " + std::string(curl_multi_strerror(mcode)));
                 }
@@ -119,6 +115,7 @@ PCTNetworkWorker::PCTNetworkWorker()
                                     if (msg->data.result != CURLE_OK || mcode != CURLM_OK) {
                                         curl_easy_cleanup(msg->easy_handle);
                                     } else {
+                                        curl_easy_reset(msg->easy_handle);
                                         mHandles.push(msg->easy_handle);
                                     }
                                     break;
