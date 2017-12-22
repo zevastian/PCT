@@ -283,7 +283,7 @@ int OGLWindow::getState()
 
     if (XGetWindowProperty(mDisplay, mWindow, mNetWMState, 0, LONG_MAX, False,
                            XA_ATOM, &type, &format, &numProperties, &after, &properties) != Success) {
-        std::cout << "XGetWindowProperty failed" << std::cout;
+        std::cout << "XGetWindowProperty failed" << std::endl;
         return state;
     }
 
