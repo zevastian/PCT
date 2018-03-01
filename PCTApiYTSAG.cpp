@@ -91,6 +91,6 @@ PCT_APICODE PCTApi::process(std::vector<char>& buffer, std::vector<PCTMovie>& mo
 
 PCT_APICODE PCTApi::prepare(std::string& url)
 {
-    url = "https://yts.ag/api/v2/list_movies.json?sort_by=date_added&limit=50&page=" + std::to_string(mPage++);
+    url = "https://yts.am/api/v2/list_movies.json?sort_by=date_added&limit=50&page=" + std::to_string(mPage++);
     return PCT_APICODE::PCT_API_HAS_MORE;
 }
