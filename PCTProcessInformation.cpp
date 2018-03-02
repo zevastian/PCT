@@ -1,3 +1,4 @@
+#include<string>
 #include<boost/regex.hpp>
 #include"PCTProcessInformation.h"
 #include"PCTSingletonThreadWorker.h"
@@ -17,8 +18,52 @@ void PCTProcessInformation::run()
         std::string input (mInfoMovie.begin(), mInfoMovie.end());
         if (boost::regex_search(input, match, boost::regex("<link rel='image_src' href=\"(.*?)\">")) && match.size() > 0) {
             input = match.str(1);
+
+            bool ux = false;
+            if (boost::regex_search(input, match, boost::regex("_UX[0-9]{1,4}")) && match.size() > 0) {
+                ux = true;
+            }
+            bool uy = false;
+            if (boost::regex_search(input, match, boost::regex("_UY[0-9]{1,4}")) && match.size() > 0) {
+                uy = true;
+            }
+            int crx = 0;
+            int cry = 0;
+            if (boost::regex_search(input, match, boost::regex("_CR[0-9]{1,4}\,[0-9]{1,4}")) && match.size() > 0) {
+                std::string input = match.str(0);
+                if (boost::regex_search(input, match, boost::regex("_CR(.*?)\,")) && match.size() > 0) {
+                    crx = std::stoi(match.str(1));
+                }
+                if (boost::regex_search(input, match, boost::regex("\,(.*?)$")) && match.size() > 0) {
+                    cry = std::stoi(match.str(1));
+                }
+            }
+            int alx = 0;
+            int aly = 0;
+            if (boost::regex_search(input, match, boost::regex("[0-9]{1,4}\,[0-9]{1,4}_AL")) && match.size() > 0) {
+                std::string input = match.str(0);
+                if (boost::regex_search(input, match, boost::regex("(.*?)\,")) && match.size() > 0) {
+                    alx = std::stoi(match.str(1));
+                }
+                if (boost::regex_search(input, match, boost::regex(",(.*?)_AL")) && match.size() > 0) {
+                    aly = std::stoi(match.str(1));
+                }
+            }
+
             if (boost::regex_search(input, match, boost::regex("https(.*?)\\._V")) && match.size() > 0) {
-                std::string url = "https" + match.str(1) + "._V1_UX182_CR0,0,182,268_AL_.jpg";
+                std::string url;
+
+                if (uy) {
+                    alx += 2*(crx - 1);
+                } else if (ux) {
+                    aly += 2*(cry - 1);
+                }
+                if (alx/(float)aly > 0.667f) {
+                    url = "https" + match.str(1) + "._V1_UY345_CR" + std::to_string((int)(0.5f*(345.0f*alx/(float)aly - 230.0f))) + ",0,230,345_AL_.jpg";
+                } else {
+                    url = "https" + match.str(1) + "._V1_UX230_CR0," + std::to_string((int)(0.5f*(230.0f*aly/(float)alx - 345.0f))) + ",230,345_AL_.jpg";
+                }
+
                 if (!mToken->isCancelled()) {
                     mMovie.small_cover_image_url = url;
                     mMovie.medium_cover_image_url = url;
