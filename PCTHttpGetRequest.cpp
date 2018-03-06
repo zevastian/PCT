@@ -48,11 +48,13 @@ void PCTHttpGetRequest::onFinish(CURL* handle, CURLcode code)
     //RAZON POR LA CUAL SE RECIBE NULO
     if (!handle) {
         onFinish(PCT_NETWORK_CODE::PCT_NET_FAILURE);
+        return;
     }
 
     //FALLO LIBCURL O SE CANCELO
     if (code != CURLE_OK) {
         onFinish(PCT_NETWORK_CODE::PCT_NET_FAILURE);
+        return;
     }
 
     //NO FALLO PERO VEMOS SI TUVO EXITO
@@ -61,6 +63,7 @@ void PCTHttpGetRequest::onFinish(CURL* handle, CURLcode code)
     code = curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &httpCode);
     if (code != CURLE_OK) {
         onFinish(PCT_NETWORK_CODE::PCT_NET_FAILURE);
+        return;
     }
 
     if (httpCode == 200) {
