@@ -18,7 +18,7 @@ bool PCTHttpGetRequest::onStart(CURL* handle)
         curl_easy_setopt(handle, CURLOPT_USERAGENT, "Mozilla/5.0");
         curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 15L);
         curl_easy_setopt(handle, CURLOPT_LOW_SPEED_TIME, 15L);
-        curl_easy_setopt(handle, CURLOPT_LOW_SPEED_LIMIT, 128L);
+        curl_easy_setopt(handle, CURLOPT_LOW_SPEED_LIMIT, 1024L);
 #if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 43
         curl_easy_setopt(handle, CURLOPT_PIPEWAIT, 1L);
 #endif
