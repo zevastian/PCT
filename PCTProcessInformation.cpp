@@ -29,20 +29,20 @@ void PCTProcessInformation::run()
             }
             int crx = 0;
             int cry = 0;
-            if (boost::regex_search(input, match, boost::regex("_CR[0-9]{1,4}\,[0-9]{1,4}")) && match.size() > 0) {
+            if (boost::regex_search(input, match, boost::regex("_CR[0-9]{1,4},[0-9]{1,4}")) && match.size() > 0) {
                 std::string input = match.str(0);
-                if (boost::regex_search(input, match, boost::regex("_CR(.*?)\,")) && match.size() > 0) {
+                if (boost::regex_search(input, match, boost::regex("_CR(.*?),")) && match.size() > 0) {
                     crx = std::stoi(match.str(1));
                 }
-                if (boost::regex_search(input, match, boost::regex("\,(.*?)$")) && match.size() > 0) {
+                if (boost::regex_search(input, match, boost::regex(",(.*?)$")) && match.size() > 0) {
                     cry = std::stoi(match.str(1));
                 }
             }
             int alx = 0;
             int aly = 0;
-            if (boost::regex_search(input, match, boost::regex("[0-9]{1,4}\,[0-9]{1,4}_AL")) && match.size() > 0) {
+            if (boost::regex_search(input, match, boost::regex("[0-9]{1,4},[0-9]{1,4}_AL")) && match.size() > 0) {
                 std::string input = match.str(0);
-                if (boost::regex_search(input, match, boost::regex("(.*?)\,")) && match.size() > 0) {
+                if (boost::regex_search(input, match, boost::regex("(.*?),")) && match.size() > 0) {
                     alx = std::stoi(match.str(1));
                 }
                 if (boost::regex_search(input, match, boost::regex(",(.*?)_AL")) && match.size() > 0) {
