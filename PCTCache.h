@@ -1,5 +1,5 @@
 #include<sqlite3.h>
-#include<vector>
+#include<queue>
 #include<mutex>
 
 #ifndef PCT_CACHE__H_
@@ -8,9 +8,19 @@
 class PCTCache
 {
 private:
-    sqlite3* mConection;
-    sqlite3_stmt* mSet;
-    sqlite3_stmt* mGet;
+    struct SQLiteConection {
+        sqlite3* conection;
+        sqlite3_stmt* stmtSet;
+        sqlite3_stmt* stmtGet;
+        SQLiteConection()
+        {
+            conection = NULL;
+            stmtSet = NULL;
+            stmtGet = NULL;
+        }
+    };
+
+    std::queue<SQLiteConection> mConections;
     std::mutex mMutex;
     static int callback(void* data, int count, char** rows, char** name);
 

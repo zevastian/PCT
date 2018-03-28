@@ -1,7 +1,8 @@
-#include"PCTDecodeCover.h"
+#include<cstdio>
+#include<cstring>
+#include<csetjmp>
 #include<jpeglib.h>
-#include<setjmp.h>
-#include<string.h>
+#include"PCTDecodeCover.h"
 
 struct jpeg_error {
     jpeg_error_mgr pub;

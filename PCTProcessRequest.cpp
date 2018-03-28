@@ -1,10 +1,10 @@
+#include<cstring>
 #include"PCTProcessRequest.h"
 #include"PCTSingletonThreadWorker.h"
 #include"PCTSingletonNetworkWorker.h"
 #include"PCTSingletonApi.h"
 #include"PCTLoadCover.h"
 #include"PCTLoadInformation.h"
-#include<string.h>
 
 PCTProcessRequest::PCTProcessRequest(std::vector<char> requestData, std::shared_ptr<PCTCancellationToken> token, PCTCommon common, int priority)
     :PCTWorkItem(priority), mRequestData(requestData), mToken(token), mCommon(common)
@@ -51,7 +51,7 @@ void PCTProcessRequest::run()
                 }
             }
             XClientMessageEvent event;
-            memset(&event, 0, sizeof(XClientMessageEvent));
+            std::memset(&event, 0, sizeof(XClientMessageEvent));
             event.type = ClientMessage;
             event.format = 32;
             event.data.s[0] = 0;

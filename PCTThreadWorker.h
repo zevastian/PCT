@@ -17,6 +17,7 @@ private:
     std::mutex mMutexQueueItem;
     std::condition_variable mCondVarWaitItem;
     std::vector<std::thread> mThreads;
+    unsigned int mNumThread;
     bool mExit;
 
 public:
@@ -27,6 +28,8 @@ public:
 
     /**/
     void addWorkItem(std::shared_ptr<PCTWorkItem> item);
+    /**/
+    unsigned int getConcurrency();
 };
 
 #endif
