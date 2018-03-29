@@ -22,7 +22,13 @@ private:
 
     std::queue<SQLiteConection> mConections;
     std::mutex mMutex;
+
+    /**/
     static int callback(void* data, int count, char** rows, char** name);
+    /**/
+    void popConection(SQLiteConection& conection);
+    /**/
+    void pushConection(SQLiteConection conection);
 
 public:
     /**/

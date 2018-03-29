@@ -99,13 +99,25 @@ int PCTCache::callback(void* data, int count, char** rows, char** name)
     return 1;
 }
 
+void PCTCache::popConection(SQLiteConection& conection)
+{
+    mMutex.lock();
+    conection = mConections.front();
+    mConections.pop();
+    mMutex.unlock();
+}
+
+void PCTCache::pushConection(SQLiteConection conection)
+{
+    mMutex.lock();
+    mConections.push(conection);
+    mMutex.unlock();
+}
+
 bool PCTCache::get(std::string id, std::vector<char>& data)
 {
     SQLiteConection sqlcon;
-    mMutex.lock();
-    sqlcon = mConections.front();
-    mConections.pop();
-    mMutex.unlock();
+    popConection(sqlcon);
 
     //REINICIO ANTES DE USAR
     sqlite3_reset(sqlcon.stmtGet);
@@ -120,19 +132,14 @@ bool PCTCache::get(std::string id, std::vector<char>& data)
         }
     }
 
-    mMutex.lock();
-    mConections.push(sqlcon);
-    mMutex.unlock();
+    pushConection(sqlcon);
     return ret;
 }
 
 void PCTCache::set(std::string id, std::vector<char> data)
 {
     SQLiteConection sqlcon;
-    mMutex.lock();
-    sqlcon = mConections.front();
-    mConections.pop();
-    mMutex.unlock();
+    popConection(sqlcon);
 
     //REINICIO ANTES DE USAR
     sqlite3_reset(sqlcon.stmtSet);
@@ -143,7 +150,5 @@ void PCTCache::set(std::string id, std::vector<char> data)
         }
     }
 
-    mMutex.lock();
-    mConections.push(sqlcon);
-    mMutex.unlock();
+    pushConection(sqlcon);
 }

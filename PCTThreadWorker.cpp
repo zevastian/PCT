@@ -13,13 +13,11 @@ PCTThreadWorker::PCTThreadWorker()
             bool exit = false;
             do {
                 std::unique_lock<std::mutex> lock(mMutexQueueItem);
-                while(mQueueItem.empty() && !mExit)
-                {
+                while(mQueueItem.empty() && !mExit) {
                     mCondVarWaitItem.wait(lock);
                 }
 
-                if (!mQueueItem.empty())
-                {
+                if (!mQueueItem.empty()) {
                     do {
                         auto item = std::move(mQueueItem.top());
                         mQueueItem.pop();
@@ -27,8 +25,7 @@ PCTThreadWorker::PCTThreadWorker()
                         item->run();
                         mMutexQueueItem.lock();
                     } while (!mQueueItem.empty());
-                } else if (mExit)
-                {
+                } else if (mExit) {
                     exit = true;
                 }
             } while(!exit);
